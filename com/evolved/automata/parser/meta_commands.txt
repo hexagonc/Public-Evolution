@@ -1,0 +1,15 @@
+word = '@'+
+enable = ( "enable") | ("in able")
+disable = "disable"
+meta_command = enable | disable
+function_spec_words = word, (' ', word)*
+parameters = word, (' ', word)*
+command_string = meta_command, (' ', parameters)?
+middle = '~'+
+last = "final"
+command = middle, last
+specific_enable = "enable l"
+general_enable = enable, ' ', parameters
+command_entered = specific_enable | general_enable
+prefix = "set"
+</com/evolved/automata/parser/mathematical_expressions.txt>

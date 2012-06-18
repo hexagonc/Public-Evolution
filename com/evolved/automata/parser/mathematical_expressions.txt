@@ -1,0 +1,15 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;; Algebraic Expression parsing ;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+nonzero_digit = '0'`, '#'
+
+integer_part = '0' | ( nonzero_digit, '#'*)
+fractional_part = '0' | ('#'*, nonzero_digit)
+basic_number = '-'?, integer_part, ('.', fractional_part)?
+name = ('@' | '_')+
+basic_term = basic_number | name | function
+function = name, '(', ' '*, term, ' '*, ')'
+term = basic_term | ('(', term, ')') | ((term, (('*' | '/'), term)*), (('+' | '-'), term)*) | (term, '^', ( basic_number | name |  ('(', term, ')') ))
+summand = term
+product = term

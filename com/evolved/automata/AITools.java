@@ -128,7 +128,51 @@ public class AITools {
 		}
 	}
 	
-	
+	/**
+	 * This function implements a slightly altered version of simulated sampling from
+	 * a Bernoulli urn filled with colored balls.  With this function, colors with
+	 * more balls are weighted slightly more than it would from a completely fair
+	 * uniform sampling.  This function only works properly  when the weights are non-
+	 * negative. TODO: Fix this so that the maximum and minimum weights are arbitrary
+	 * and introduction an error and comparison scale as is done with
+	 * ChooseWeightedRandomPartition
+	 * 
+	 * @param itemList
+	 * @param favor_high    favor_high
+	 */
+	public static  String ChooseWeightedRandomString(Hashtable<String, Integer> stringDistribution, boolean favor_high)
+	{
+		if ((stringDistribution==null)||(stringDistribution.size()<1))
+			return null;
+		else
+		{
+			
+			double cutoff;
+			double totalWeight=0;
+			Integer value;
+			for (String wValue: stringDistribution.keySet())
+			{
+				value = stringDistribution.get(wValue);
+				totalWeight+=value.intValue();
+			}
+			cutoff =  totalWeight*Math.random();
+			double pastRange=0,weight;
+			
+			for (String wValue:stringDistribution.keySet())
+			{
+				
+				value = stringDistribution.get(wValue);
+				
+				if ((value.intValue()+pastRange)>=cutoff)
+				{
+					return wValue;
+				}
+				pastRange+=value.intValue();
+			}
+			return null;
+			
+		}
+	}
 	
 	
 

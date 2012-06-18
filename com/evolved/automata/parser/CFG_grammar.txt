@@ -1,0 +1,52 @@
+idChar = '@' | '#' | '_' | '-'
+; Allows for simplified strings using single quotes instead of double-quotes
+literal = ('\"', (('\"'`, '~') | ('\\', '\"'))+, '\"') |  ('\'', ('\''`, '~')+, '\'')
+;literal = '\"', ('#' | '@')+, '\"'
+;; TODO: Add terminal matching
+nonterminal = idChar+
+backreference_count= '#'+
+backreference = nonterminal, ':', backreference_count
+
+;************************************************************************************************************************
+;; These are components where the start of a match can be determined by checking a single character
+;; and they are bounded by either a delimiter or the following component
+;************************************************************************************************************************
+compact_component = group | literal | nonterminal | backreference
+
+minimum_matches = '#'+
+maximum_matches = '#'+
+match_spec = '\(', minimum_matches, ('\)' | ('\,', ' '*, maximum_matches, '\)'))
+extended_wildcard = '*', match_spec?
+
+standard_wildcard = '+' | '?'
+standard_quantifier = standard_wildcard | extended_wildcard
+quantified_term = compact_component
+standard_quantified = quantified_term, standard_quantifier
+
+;**********************************
+; Negative quantifiers
+;**********************************
+
+negative_quantified = compact_component
+positive_match = compact_component
+negative_quantified_expression = negative_quantified, "`, ", positive_match
+
+;**********************************
+
+
+;**********************************
+; Quantifiers
+;**********************************
+
+quantifier = standard_quantified | negative_quantified_expression
+
+;**********************************
+
+alternative_term = compact_component
+alternation = alternative_term, ('$'+, '|', '$'+, alternative_term)+
+group = '\(', '$'*, term, '$'*, '\)'
+conjunction = term, ('\,', '$'+, term)+
+term = compact_component | quantifier | conjunction | alternation
+nonterminal_name = idChar+
+nonterminal_definition = term
+top_match = nonterminal_name, '$'*, '=', '$'*, nonterminal_definition, '$'*
