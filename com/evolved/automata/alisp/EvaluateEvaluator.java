@@ -47,7 +47,7 @@ public class EvaluateEvaluator implements CompiledEvaluator {
 		if (expression!=null&&expression.isContinuation())
 			return returnContinuation(expression);
 		String expres = (String)expression.oValue;
-		return resetReturn(env.getFastCompiledResult(expres));
+		return resetReturn(env.getParsedResult(expres));
 	}
 	
 	

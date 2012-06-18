@@ -41,7 +41,6 @@ public class Environment {
 	public Environment()
 	{
 		
-		
 		lexical= new HashSet<String>();
 		addStandardFunctions();
 		addStaticFunctions();
@@ -159,18 +158,49 @@ public class Environment {
 		
 	}
 	
-	public ParserResult parse(String input)
+	public CompiledEvaluator parserIntoEvaluator(String s_expression)
 	{
-		return parse(null, input, 0);
+		ParserResult result = parse(s_expression);
+		if (result==null)
+			throw new RuntimeException("Fast compilation error: Invalid lisp expression");
+		Argument out = result.argument;
+		if (out.isEvaluator())
+		{
+			
+			return out.getEvaluator();
+		}
+		return null;
 	}
+	
 	
 	public Argument getParsedResult(String input)
 	{
-		ParserResult p = parse(null, input, 0);
-		if (p!=null)
-			return p.argument;
-		else
-			return null;
+		return getParsedResult(false,input);
+	}
+	
+	public Argument getParsedResult(boolean resume,String s_expression)
+	{
+		ParserResult result = parse(s_expression);
+		if (result==null)
+			throw new RuntimeException("Fast compilation error: Invalid lisp expression");
+		Argument out = result.argument;
+		if (out.isEvaluator())
+		{
+			CompiledEvaluator eval = out.getEvaluator();
+			return eval.getCompiledResult(resume);
+		}
+		return out;
+	}
+	
+	
+	public Argument getPreParsedResult(CompiledEvaluator evaluator, boolean resume)
+	{
+		return evaluator.getCompiledResult(resume);
+	}
+	
+	public ParserResult parse(String input)
+	{
+		return parse(null, input, 0);
 	}
 	
 	public ParserResult parse(Environment env, String input, int start)
@@ -546,40 +576,6 @@ public class Environment {
 		return null;
 	}
 	
-	
-	public Argument getFastCompiledResult(String s_expression)
-	{
-		
-		return getFastCompiledResult(false, s_expression);
-	}
-	
-	
-	public Argument getFastCompiledResult(boolean resume,String s_expression)
-	{
-		ParserResult result = parse(s_expression);
-		if (result==null)
-			throw new RuntimeException("Fast compilation error: Invalid lisp expression");
-		Argument out = result.argument;
-		if (out.isEvaluator())
-		{
-			CompiledEvaluator eval = out.getEvaluator();
-			return eval.getCompiledResult(resume);
-		}
-		return out;
-	}
-	
-	
-	
-	
-	
-	public Argument getCompiledResult(CompiledEvaluator evaluator, boolean resume)
-	{
-		return evaluator.getCompiledResult(resume);
-	}
-	
-	
-	
-	
 
 	private Argument[] mapCompiledArguments(Argument[] sargs)
 	{
@@ -751,7 +747,7 @@ public class Environment {
 				if (a.isEvaluator())
 				{
 					ev=a.getEvaluator();
-					getCompiledResult(ev, false);
+					getPreParsedResult(ev, false);
 				}
 				if (data.substring(start).trim().length()>0)
 				{
@@ -770,7 +766,7 @@ public class Environment {
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException("compile error near: "+ data.substring(0, data.length()));
+			throw new RuntimeException("parse error near: "+ data.substring(0, data.length()));
 		}
 		finally
 		{
@@ -818,7 +814,7 @@ public class Environment {
 				if (a.isEvaluator())
 				{
 					ev=a.getEvaluator();
-					getCompiledResult(ev, false);
+					getPreParsedResult(ev, false);
 				}
 				if (data.substring(start).trim().length()>0)
 				{
