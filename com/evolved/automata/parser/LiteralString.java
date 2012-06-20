@@ -2,7 +2,7 @@ package com.evolved.automata.parser;
 
 import java.util.LinkedList;
 
-public class LiteralString extends UnitParser{
+public class LiteralString extends Matcher{
 	
 	public LiteralString(String value, int endIndex)
 	{
@@ -12,13 +12,13 @@ public class LiteralString extends UnitParser{
 	}
 
 	@Override
-	public LinkedList<UnitParser> matchCompiled() {
+	public LinkedList<Matcher> match() {
 		
 		return null;
 	}
 
 	@Override
-	public UnitParser clone() {
+	public Matcher clone() {
 		
 		return new LiteralString(grammarComponent, endIndex);
 	}

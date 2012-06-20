@@ -28,7 +28,7 @@ public class PatternBuilder {
 		
 		for (String matchLine:grammarLines)
 		{
-			defParts = UnitParser.splitPattern(matchLine, '=', true);
+			defParts = Parser.splitPattern(matchLine, '=', true);
 			name = defParts[0].trim();
 			matchComponents = defParts[1].trim();
 			if (containsInvalidGrammar(matchComponents))
@@ -56,7 +56,7 @@ public class PatternBuilder {
 		if (components.containsKey(nonTerminal))
 		{
 			String def = components.get(nonTerminal);
-			String[] subParts = UnitParser.isAlternation(def);
+			String[] subParts = Parser.isAlternation(def);
 			
 			
 			if (subParts!=null)

@@ -1,15 +1,21 @@
 package com.evolved.automata.parser;
-import java.io.IOException;
 import java.util.*;
 
-import com.evolved.automata.*;
-import com.evolved.automata.filetools.SimpleLogger;
 
-public abstract class UnitParser 
+
+public class Parser 
 {
+	/**
+	 * This class contains methods for building a parse-tree from a string representation
+	 * of a regex pattern.  In fact, this parser can parse more general patterns than
+	 * standard regular expressions, since it supports back references.  See
+	 * http://phase-summary.blogspot.com/2012/05/context-free-grammar-parser-and-pattern.html for 
+	 * detailed pattern rules.
+	 * 
+	 */
 	public static boolean debug=true;
 	
-	public Hashtable<String, Integer> nonTerminalMatches;
+	
 	
 	public static final String wildcard = "~";
 	public static final String whitespace = "$";
@@ -24,35 +30,7 @@ public abstract class UnitParser
 	public static final String onePlus="+";
 	public static final String negation = "`";
 	
-	public String grammarComponent;
-	public String inputString;
-	public int startIndex;
-	public int endIndex;
 	
-	
-	CFGParser.GlobalState global;
-	
-	public final String groupName = "group";
-	
-	protected Hashtable<String,UnitParser> compiledComponents;
-	protected Hashtable<String,String> namedComponents;
-	protected int matchIndex;
-	protected int maxSubMatches;
-	protected String[] subGrammars;
-	protected UnitParser[] subStates;
-	protected UnitParser parent;
-	protected UnitParser nonDeterministicAncestor;
-	protected HashSet<String> captureGroupNames = null;
-	protected Hashtable<String, LinkedList<String>> capturedMaps;
-	protected String capturedValue=null;
-	protected LinkedList<Integer> endIndices;
-	protected UnitParser previous = null;
-	protected int indexInParent;
-	protected HashSet<String> componentsForSubgrammars;
-	protected boolean isQuantifier=false;
-	protected boolean isAlternation = false;
-	public boolean isNonterminal=false;
-	boolean priorSuccess=false;
 	
 	
 	public static final int t_TERMINAL=0;
@@ -64,104 +42,6 @@ public abstract class UnitParser
 	public static final int t_WILDCARD=6;
 	public static final int t_QUANTIFIER=7;
 	
-	public int type=0;
-	
-	
-	public boolean finalized=false;
-	Hashtable<String, StringDistribution> processedDistributions;
-	
-	
-	public static com.evolved.automata.filetools.SimpleLogger log;
-	
-	public void setComponentsForSubgrammars(HashSet<String> componentsForSubgrammars)
-	{
-		this.componentsForSubgrammars = componentsForSubgrammars;
-	}
-	
-	public void logState()
-	{
-		logState("general");
-		
-	}
-	
-	public static int logcount=0;
-	public void logState(String message)
-	{
-		if (log==null)
-			return;
-		logcount++;
-		String statePattern = "%1$s, %2$s,  %3$s,  %4$s, %5$s, %6$s, %7$s, %8$s, %9$s";
-		String output = String.format(statePattern,
-				SimpleLogger.delimitIfNeeded(message),
-				SimpleLogger.delimitIfNeeded(this.toString()), 
-				SimpleLogger.delimitIfNeeded((grammarComponent==null?"null":grammarComponent)),							
-				startIndex,
-				endIndex,
-				indexInParent,
-				maxSubMatches,
-				SimpleLogger.delimitIfNeeded(((endIndex>startIndex)?inputString.substring(startIndex, endIndex):"")),
-				SimpleLogger.delimitIfNeeded(inputString)
-				);
-		log.logMessage(""+ logcount+ ":: "+output);
-		
-	}
-	
-	
-	public UnitParser()
-	{
-		processedDistributions = new Hashtable<String, StringDistribution>();
-	}
-	
-	public UnitParser(CFGParser.GlobalState global)
-	{
-		this.global = global;
-		processedDistributions = new Hashtable<String, StringDistribution>();
-	}
-
-	public UnitParser getNonDeterministicPrior()
-	{
-		return nonDeterministicAncestor;
-	}
-	
-	
-	public boolean isFinalized()
-	{
-		return finalized;
-	}
-	
-	public int getEndIndex()
-	{
-		return endIndex;
-	}
-	
-	public LinkedList<String> getCapturedList(String name)
-	{
-		
-		if ((capturedMaps!=null)&&(capturedMaps.containsKey(name)))
-		{
-			return capturedMaps.get(name);
-		}
-		else
-			return null;
-	}
-	
-	
-	public String getFirstCapturedValue(String name)
-	{
-		LinkedList<String> v = getCapturedList(name);
-		if ((v!=null)&&(v.size()>0))
-			return v.getFirst();
-		else
-			return null;
-			
-	}
-	
-	
-	public Hashtable<String, LinkedList<String>> getCaptureSet()
-	{
-		return capturedMaps;
-		
-	}
 	
 	public static String getValueFromMatchSpecifier(String specifier)
 	{
@@ -235,27 +115,27 @@ public abstract class UnitParser
 			
 	}
 	
-	public static UnitParser parse(CFGParser.GlobalState global,String component, Hashtable<String,String> namedComponents)
+	public static Matcher parse(CFGParser.GlobalState global,String component, Hashtable<String,String> namedComponents)
 	{
 		return parse(global, component, namedComponents, true);
 	}
 	
-	public static UnitParser parse(CFGParser.GlobalState global,  String component, Hashtable<String,String> namedComponents, boolean defaultQuantifierGreedyP)
+	public static Matcher parse(CFGParser.GlobalState global,  String component, Hashtable<String,String> namedComponents, boolean defaultQuantifierGreedyP)
 	{
 		
 		component = component.trim();
 		String terminalSymbol = isTerminal(component);
 		if (terminalSymbol!=null)
 		{
-			return new TerminalMatcherState(global, terminalSymbol);
+			return new TerminalMatcher(global, terminalSymbol);
 		}
 		
 		
 		String[] parts;
-		UnitParser[] subStates;
+		Matcher[] subStates;
 		StringDistribution distribution; 
 		parts = disjuctionofLiterals(component);
-		UnitParser ostate;
+		Matcher ostate;
 		if (parts!=null)
 		{
 			distribution= new StringDistribution();
@@ -263,45 +143,50 @@ public abstract class UnitParser
 			{
 				distribution.addString(s);
 			}
-			ostate = new OptimizedAlternation(global, distribution);
+			
 			if (debug)
 			{
 				if (global!=null)
 					global.incrementCount(component);
-				ostate.grammarComponent=component;
+				ostate = new OptimizedAlternationMatcher(component, global, distribution);
 			}
+			else
+				ostate = new OptimizedAlternationMatcher(null, global, distribution);
 			return ostate;
 		}
 		
 		parts = isConjunction(component);
 		if (parts!=null)
 		{
-			subStates = new UnitParser[parts.length];
+			subStates = new Matcher[parts.length];
 			for (int i=0;i<subStates.length;i++)
-				subStates[i]=UnitParser.parse(global, parts[i], namedComponents,defaultQuantifierGreedyP);
-			ostate = new ConjunctionMatcherState(global, subStates);
+				subStates[i]=Parser.parse(global, parts[i], namedComponents,defaultQuantifierGreedyP);
+			
 			if (debug)
 			{
 				if (global!=null)
 					global.incrementCount(component);
-				ostate.grammarComponent=component;
+				ostate = new ConjunctionMatcher(component,global, subStates);
 			}
+			else
+				ostate = new ConjunctionMatcher(null,global, subStates);
 			return ostate;
 		}
+		
 		String mappedGrammar = isLabel(component, namedComponents);
 		
 		if (mappedGrammar!=null)
 		{	
 			if (global!=null)
 				global.incrementCount(component);
-			return new NonTerminalMatcherState(global, component);
+			return new NonTerminalMatcher(component, global);
 		}
 		
 		parts = isBackReference(component);
 		
 		if (parts!=null&&namedComponents.containsKey(parts[0]))
 		{
-			ostate = new NonTerminalMatcherState(global, parts[0], Integer.parseInt(parts[1]));
+			ostate = new NonTerminalMatcher(parts[0], global,  Integer.parseInt(parts[1]));
 			
 			if (debug)
 			{
@@ -316,32 +201,37 @@ public abstract class UnitParser
 		if (mappedGrammar!=null)
 		{
 			parts = segmentGroup(mappedGrammar);
-			subStates = new UnitParser[parts.length];
+			subStates = new Matcher[parts.length];
 			for (int i=0;i<subStates.length;i++)
-				subStates[i]=UnitParser.parse(global, parts[i], namedComponents, defaultQuantifierGreedyP);
-			ostate = new ConjunctionMatcherState(global, subStates);;
+				subStates[i]=Parser.parse(global, parts[i], namedComponents, defaultQuantifierGreedyP);
+			
 			if (debug)
 			{
 				if (global!=null)
 					global.incrementCount(component);
-				ostate.grammarComponent=component;
+				ostate = new ConjunctionMatcher(component, global, subStates);;
 			}
+			else
+				ostate = new ConjunctionMatcher(null, global, subStates);;
 			return ostate;
 		}
 			
 		parts = isAlternation(component.trim());
 		if (parts!=null)
 		{
-			subStates = new UnitParser[parts.length];
+			subStates = new Matcher[parts.length];
 			for (int i=0;i<subStates.length;i++)
-				subStates[i]=UnitParser.parse(global, parts[i], namedComponents, defaultQuantifierGreedyP);
-			ostate = new AlternationMatcherState(global, subStates, parts);
+				subStates[i]=Parser.parse(global, parts[i], namedComponents, defaultQuantifierGreedyP);
+			
 			if (debug)
 			{
 				if (global!=null)
 					global.incrementCount(component);
-				ostate.grammarComponent=component;
+				ostate = new AlternationMatcher(component, global, subStates, parts);
+				
 			}
+			else
+				ostate = new AlternationMatcher(null, global, subStates, parts);
 			
 			return ostate;
 		}
@@ -349,13 +239,15 @@ public abstract class UnitParser
 		qInfo = isQuantifier(component);
 		if (qInfo!=null)
 		{
-			ostate = new QuantifierMatcherState(global, defaultQuantifierGreedyP,qInfo.miniMatches, qInfo.maxMatches, parse(global, qInfo.grammar,namedComponents,defaultQuantifierGreedyP));
+			
 			if (debug)
 			{
 				if (global!=null)
 					global.incrementCount(component);
-				ostate.grammarComponent=component;
+				ostate = new QuantifierMatcher(component, global, defaultQuantifierGreedyP,qInfo.miniMatches, qInfo.maxMatches, parse(global, qInfo.grammar,namedComponents,defaultQuantifierGreedyP));
 			}
+			else
+				ostate = new QuantifierMatcher(null, global, defaultQuantifierGreedyP,qInfo.miniMatches, qInfo.maxMatches, parse(global, qInfo.grammar,namedComponents,defaultQuantifierGreedyP));
 			
 			return ostate;
 		}
@@ -364,81 +256,9 @@ public abstract class UnitParser
 	}
 	
 	
-	public int setExecutionParameters(CFGParser.GlobalState global, int indexInParent, int start, String inputString, Hashtable<String, LinkedList<String>> capturedComponents, HashSet<String> nonTerminalsToCapture, UnitParser matchParent, UnitParser mismatchParent, Hashtable<String,UnitParser> compiledComponents)
-	{
-		this.indexInParent=indexInParent;
-		this.startIndex = start;
-		this.inputString=inputString;
-		this.capturedMaps = capturedComponents;
-		this.captureGroupNames = nonTerminalsToCapture;
-		this.parent = matchParent;
-		this.nonDeterministicAncestor=mismatchParent;
-		this.endIndex=this.startIndex;
-		this.compiledComponents=compiledComponents;
-		this.global=global;
-		
-		return global.shouldSkipComponent(grammarComponent, startIndex);
-	}
-	
-	protected void finalize()
-	{
-		
-		finalized=true;
-
-	}
-	
-	protected void mergeMaps(Hashtable<String, LinkedList<String>> sourceMap, Hashtable<String, LinkedList<String>> targetMap)
-	{
-		LinkedList<String> list = null;
-		for (String key:sourceMap.keySet())
-		{
-			list = sourceMap.get(key);
-			if (targetMap.containsKey(key))
-			{
-				targetMap.get(key).addAll(list);
-			}
-			else
-			{
-				targetMap.put(key, new LinkedList<String>());
-				targetMap.get(key).addAll(list);
-			}
-		}
-	}
 	
 	
 	
-	
-	
-	
-	protected  LinkedList<UnitParser> compiledSuccessUpdate(UnitParser subChild, int nextIndex, Hashtable<String, LinkedList<String>> nextCapturedMap, UnitParser nonDeterministicPrior )
-	{
-		return null;
-	}
-	
-	protected  LinkedList<UnitParser> compiledFailureUpdate(UnitParser subChild, int nextIndex)
-	{
-		
-		
-		if (nonDeterministicAncestor==null)
-			return null;
-		else
-			return nonDeterministicAncestor.compiledFailureUpdate(this, -1);
-	}
-	
-	protected void updateFailureCache(UnitParser nonDeterministricPrior)
-	{
-		
-		if (!priorSuccess&&nonDeterministicAncestor==nonDeterministricPrior)
-		{
-			global.setFailureStatus(grammarComponent, startIndex);
-			if (parent!=null)
-				parent.updateFailureCache(nonDeterministricPrior);
-		}
-	}
-	
-	public abstract LinkedList<UnitParser> matchCompiled();
-
-	public abstract UnitParser clone();
 	
 	public static String[] segmentGroup(String groupString)
 	{
@@ -530,7 +350,7 @@ public abstract class UnitParser
 		return new String[]{input.substring(0, pos), input.substring(pos+1)}; 
 	}
 	
-	private static String isTerminal(String inString)
+	public static String isTerminal(String inString)
 	{
 		if (inString==null)
 			return null;

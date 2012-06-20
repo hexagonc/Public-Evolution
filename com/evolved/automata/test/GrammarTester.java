@@ -143,8 +143,8 @@ public class GrammarTester {
 				String outputDescriptionPattern = "Match: %1$s -- [ %2$s -> %3$s ] ";
 				String oString=null;
 				String captured;
-				LinkedList<UnitParser> gState = cfg.getOutputSet();
-				UnitParser s;
+				LinkedList<Matcher> gState = cfg.getOutputSet();
+				Matcher s;
 				if (capturevalues!=null)
 				{
 					for (int i=0;i<gState.size();i++)

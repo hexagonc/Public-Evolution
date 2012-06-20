@@ -1,7 +1,7 @@
 package com.evolved.automata.parser;
 import java.util.*;
 
-import com.evolved.automata.parser.UnitParser.QuantifierInfo;
+import com.evolved.automata.parser.Parser.QuantifierInfo;
 
 
 
@@ -774,13 +774,13 @@ public abstract class PatternGenerator {
 		String[] parts;
 		PatternGenerator[] subStates;
 		
-		parts = UnitParser.disjuctionofLiterals(patternComponent);
+		parts = Parser.disjuctionofLiterals(patternComponent);
 		if (parts!=null)
 		{
 			return new LiteralDistribution(parentBuilder, patternComponent, parts);
 		}
 		
-		parts = UnitParser.disjuctionofLiteralsSimplified(patternComponent);
+		parts = Parser.disjuctionofLiteralsSimplified(patternComponent);
 		if (parts!=null)
 		{
 			return new LiteralDistribution(parentBuilder, patternComponent, parts);
@@ -796,7 +796,7 @@ public abstract class PatternGenerator {
 		}
 		
 		
-		parts = UnitParser.isConjunction(patternComponent);
+		parts = Parser.isConjunction(patternComponent);
 		if (parts!=null)
 		{
 			subStates = new PatternGenerator[parts.length];
@@ -804,11 +804,11 @@ public abstract class PatternGenerator {
 				subStates[i]=compile(parentBuilder, parts[i]);
 			return new ConjunctionDistribution(parentBuilder, patternComponent, subStates);
 		}
-		String mappedGrammar = UnitParser.isLabel(patternComponent, parentBuilder.getNonterminalMap());
+		String mappedGrammar = Parser.isLabel(patternComponent, parentBuilder.getNonterminalMap());
 		
 		if (mappedGrammar!=null)
 		{	
-			String[] subParts = UnitParser.isAlternation(mappedGrammar);
+			String[] subParts = Parser.isAlternation(mappedGrammar);
 			
 			Hashtable<String, PatternGenerator> input = new Hashtable<String, PatternGenerator>();
 			PatternGenerator gen = null;
@@ -818,7 +818,7 @@ public abstract class PatternGenerator {
 				match=true;
 				for (String s:subParts)
 				{
-					if (UnitParser.isLabel(s, parentBuilder.getNonterminalMap())!=null)
+					if (Parser.isLabel(s, parentBuilder.getNonterminalMap())!=null)
 					{
 						gen = new NonterminalDistribution(parentBuilder, s);
 						input.put(s, gen);
@@ -843,7 +843,7 @@ public abstract class PatternGenerator {
 				return new NonterminalDistribution(parentBuilder, patternComponent);
 		}
 		
-		parts = UnitParser.isBackReference(patternComponent);
+		parts = Parser.isBackReference(patternComponent);
 		
 		if (parts!=null)
 		{
@@ -852,10 +852,10 @@ public abstract class PatternGenerator {
 			return new NonterminalDistribution(parentBuilder,patternComponent, parts[0], index);
 		}
 		
-		mappedGrammar = UnitParser.isGroup(patternComponent);
+		mappedGrammar = Parser.isGroup(patternComponent);
 		if (mappedGrammar!=null)
 		{
-			parts = UnitParser.segmentGroup(mappedGrammar);
+			parts = Parser.segmentGroup(mappedGrammar);
 			subStates = new PatternGenerator[parts.length];
 			for (int i=0;i<subStates.length;i++)
 				subStates[i]=compile(parentBuilder, parts[i]);
@@ -863,7 +863,7 @@ public abstract class PatternGenerator {
 		}
 		
 		
-		parts = UnitParser.isAlternation(patternComponent);
+		parts = Parser.isAlternation(patternComponent);
 		if (parts!=null)
 		{
 			subStates = new PatternGenerator[parts.length];
@@ -872,7 +872,7 @@ public abstract class PatternGenerator {
 			return new AlternationDistribution(parentBuilder, patternComponent, subStates);
 		}
 		QuantifierInfo qInfo;
-		qInfo = UnitParser.isQuantifier(patternComponent);
+		qInfo = Parser.isQuantifier(patternComponent);
 		if (qInfo!=null)
 		{
 			PatternGenerator generator = compile(parentBuilder, qInfo.grammar);

@@ -109,11 +109,11 @@ public class CFGParser {
 	public static com.evolved.automata.filetools.SimpleLogger log;
 	
 	private Hashtable<String,String> namedComponents;
-	protected Hashtable<String,UnitParser> compiledComponents;
-	protected Hashtable<String,UnitParser> cachedCompiled;
+	protected Hashtable<String,Matcher> compiledComponents;
+	protected Hashtable<String,Matcher> cachedCompiled;
 	GlobalState baseState;
 	
-	private LinkedList<UnitParser> endStates;
+	private LinkedList<Matcher> endStates;
 	private String inputFileFullName;
 	Hashtable<String, StringDistribution> processedDistributions;
 	
@@ -124,7 +124,7 @@ public class CFGParser {
 	public CFGParser()
 	{
 		namedComponents = new Hashtable<String, String>();
-		compiledComponents = new Hashtable<String, UnitParser>();
+		compiledComponents = new Hashtable<String, Matcher>();
 		
 	}
 	
@@ -138,9 +138,9 @@ public class CFGParser {
 		{
 			if (definition.length()>0)
 			{
-				if (!definition.substring(0, 1).equals(UnitParser.commentChar))
+				if (!definition.substring(0, 1).equals(Parser.commentChar))
 				{
-					defParts = UnitParser.splitPattern(definition, '=', true);
+					defParts = Parser.splitPattern(definition, '=', true);
 					namedComponents.put(defParts[0], defParts[1]);
 				}
 			}
@@ -156,7 +156,7 @@ public class CFGParser {
 		for (String sName:namedComponents.keySet())
 		{
 			value = namedComponents.get(sName);
-			subParts = UnitParser.disjuctionofLiterals(value);
+			subParts = Parser.disjuctionofLiterals(value);
 			if (subParts!=null)
 			{
 				sDistribution = new StringDistribution();
@@ -178,9 +178,9 @@ public class CFGParser {
 		{
 			if (definition.length()>0)
 			{
-				if (!definition.substring(0, 1).equals(UnitParser.commentChar))
+				if (!definition.substring(0, 1).equals(Parser.commentChar))
 				{
-					defParts = UnitParser.splitPattern(definition, '=', true);
+					defParts = Parser.splitPattern(definition, '=', true);
 					//namedComponents.put(defParts[0], GrammarState.stringToTerminalSequence(defParts[1]));
 					namedComponents.put(defParts[0], defParts[1]);
 				}
@@ -197,7 +197,7 @@ public class CFGParser {
 		for (String sName:namedComponents.keySet())
 		{
 			value = namedComponents.get(sName);
-			subParts = UnitParser.disjuctionofLiterals(value);
+			subParts = Parser.disjuctionofLiterals(value);
 			if (subParts!=null)
 			{
 				sDistribution = new StringDistribution();
@@ -224,12 +224,12 @@ public class CFGParser {
 		{
 			if (definition.length()>0)
 			{
-				if (!definition.substring(0, 1).equals(UnitParser.commentChar))
+				if (!definition.substring(0, 1).equals(Parser.commentChar))
 				{
 					includeResource = includeReference(p, definition);
 					if (includeResource==null)
 					{
-						defParts = UnitParser.splitPattern(definition, '=', true);
+						defParts = Parser.splitPattern(definition, '=', true);
 						
 						if (defParts.length>2)
 							throw new RuntimeException("Invalid grammar");
@@ -253,7 +253,7 @@ public class CFGParser {
 		for (String sName:namedComponents.keySet())
 		{
 			value = namedComponents.get(sName);
-			subParts = UnitParser.disjuctionofLiterals(value);
+			subParts = Parser.disjuctionofLiterals(value);
 			if (subParts!=null)
 			{
 				sDistribution = new StringDistribution();
@@ -282,12 +282,12 @@ public class CFGParser {
 			{
 				if (definition.length()>0)
 				{
-					if (!definition.substring(0, 1).equals(UnitParser.commentChar))
+					if (!definition.substring(0, 1).equals(Parser.commentChar))
 					{
 						includeResource = includeReference(p, definition);
 						if (includeResource==null)
 						{
-							defParts = UnitParser.splitPattern(definition, '=', true);
+							defParts = Parser.splitPattern(definition, '=', true);
 							//namedComponents.put(defParts[0], GrammarState.stringToTerminalSequence(defParts[1]));
 							namedComponents.put(defParts[0], defParts[1]);
 						}
@@ -316,7 +316,7 @@ public class CFGParser {
 		for (String sName:namedComponents.keySet())
 		{
 			value = namedComponents.get(sName);
-			subParts = UnitParser.disjuctionofLiterals(value);
+			subParts = Parser.disjuctionofLiterals(value);
 			if (subParts!=null)
 			{
 				sDistribution = new StringDistribution();
@@ -332,7 +332,7 @@ public class CFGParser {
 	{
 		baseState = new GlobalState();
 		namedComponents = new Hashtable<String, String>();
-		compiledComponents = new Hashtable<String, UnitParser>();
+		compiledComponents = new Hashtable<String, Matcher>();
 	}
 	
 	
@@ -354,7 +354,7 @@ public class CFGParser {
 		if (namedComponents.containsKey(nonTerminal))
 		{
 			originalGrammar = namedComponents.get(nonTerminal);
-			parts = UnitParser.isConjunction(originalGrammar);
+			parts = Parser.isConjunction(originalGrammar);
 			if (parts!=null)
 			{
 				finalOutput = String.format(groupAppendPattern, originalGrammar, sValue);
@@ -383,7 +383,7 @@ public class CFGParser {
 		if (namedComponents.containsKey(nonTerminal))
 		{
 			originalGrammar = namedComponents.get(nonTerminal);
-			parts = UnitParser.isConjunction(originalGrammar);
+			parts = Parser.isConjunction(originalGrammar);
 			if (parts!=null)
 			{
 				finalOutput = String.format(groupAppendPattern, originalGrammar, sValue);
@@ -412,7 +412,7 @@ public class CFGParser {
 		if (namedComponents.containsKey(nonTerminal))
 		{
 			originalGrammar = namedComponents.get(nonTerminal);
-			parts = UnitParser.isAlternation(originalGrammar);
+			parts = Parser.isAlternation(originalGrammar);
 			if (parts!=null)
 			{
 				finalOutput = String.format(groupAppendPattern, originalGrammar, sValue);
@@ -440,7 +440,7 @@ public class CFGParser {
 		if (namedComponents.containsKey(nonTerminal))
 		{
 			originalGrammar = namedComponents.get(nonTerminal);
-			parts = UnitParser.isAlternation(originalGrammar);
+			parts = Parser.isAlternation(originalGrammar);
 			if (parts!=null)
 			{
 				finalOutput = String.format(groupAppendPattern, originalGrammar, sValue);
@@ -456,30 +456,30 @@ public class CFGParser {
 		
 	}
 	
-	public UnitParser parse(String grammar)
+	public Matcher parse(String grammar)
 	{
 		return parse(grammar, true);
 	}
 	
-	public UnitParser parse(String grammar, boolean defaultQuantifierGreedyP)
+	public Matcher parse(String grammar, boolean defaultQuantifierGreedyP)
 	{
 		
-		UnitParser state = UnitParser.parse(new CFGParser.GlobalState(), grammar, namedComponents, defaultQuantifierGreedyP);
+		Matcher state = Parser.parse(new CFGParser.GlobalState(), grammar, namedComponents, defaultQuantifierGreedyP);
 		return state;
 	}
 	
 	private void buildNonTerminalParseMap()
 	{
 		baseState = new GlobalState();
-		UnitParser mapped=null;
-		compiledComponents = new Hashtable<String, UnitParser>();
+		Matcher mapped=null;
+		compiledComponents = new Hashtable<String, Matcher>();
 		String ntName = "";
 		try
 		{
 			for (String nonTerminalName:namedComponents.keySet())
 			{
 				ntName=nonTerminalName;
-				mapped = UnitParser.parse(baseState, namedComponents.get(nonTerminalName), namedComponents);
+				mapped = Parser.parse(baseState, namedComponents.get(nonTerminalName), namedComponents);
 				compiledComponents.put(nonTerminalName, mapped);
 			}
 		}
@@ -493,7 +493,7 @@ public class CFGParser {
 
 	private String includeReference(Pattern p, String lineInput)
 	{
-		Matcher m = p.matcher(lineInput);
+		java.util.regex.Matcher m = p.matcher(lineInput);
 		if (m.matches())
 			return m.group(1);
 		else
@@ -529,12 +529,12 @@ public class CFGParser {
 		while ((definition=bReader.readLine())!=null)
 		{
 			definition=definition.trim();
-			if (definition.length()>0 && !definition.substring(0, 1).equals(UnitParser.commentChar))
+			if (definition.length()>0 && !definition.substring(0, 1).equals(Parser.commentChar))
 			{
 				includeResource = includeReference(p, definition);
 				if (includeResource==null)
 				{
-					defParts = UnitParser.splitPattern(definition, '=', true);
+					defParts = Parser.splitPattern(definition, '=', true);
 					namedComponents.put(defParts[0], defParts[1]);
 				}
 				else
@@ -727,17 +727,17 @@ public class CFGParser {
 			return null;
 	}
 	
-	public boolean matchCompiled(String inputString, UnitParser precompiled, String[] captureNames)
+	public boolean matchCompiled(String inputString, Matcher precompiled, String[] captureNames)
 	{
 		return matchCompiled(inputString, precompiled, captureNames, true, new Hashtable<String, LinkedList<String>>());
 	}
 	
-	public boolean matchCompiled(String inputString, UnitParser precompiled, String[] captureNames,  boolean defaultQuantifiersGreedyP )
+	public boolean matchCompiled(String inputString, Matcher precompiled, String[] captureNames,  boolean defaultQuantifiersGreedyP )
 	{
 		return matchCompiled(inputString, precompiled, captureNames, defaultQuantifiersGreedyP, new Hashtable<String, LinkedList<String>>());
 	}
 	
-	public boolean matchCompiled(String inputString, UnitParser precompiled, String[] captureNames, boolean defaultQuantifiersGreedyP ,  Hashtable<String, LinkedList<String>> capturedComponents)
+	public boolean matchCompiled(String inputString, Matcher precompiled, String[] captureNames, boolean defaultQuantifiersGreedyP ,  Hashtable<String, LinkedList<String>> capturedComponents)
 	{
 		return matchPrebind(inputString, precompiled, captureNames, defaultQuantifiersGreedyP, capturedComponents);
 	}
@@ -756,15 +756,15 @@ public class CFGParser {
 	
 	public boolean match(String inputString, String pattern, String[] captureNames, boolean defaultQuantifiersGreedyP,  Hashtable<String, LinkedList<String>> capturedComponents)
 	{
-		UnitParser precompiled = parse(pattern);
+		Matcher precompiled = parse(pattern);
 		return matchPrebind(inputString, precompiled, captureNames, defaultQuantifiersGreedyP, capturedComponents);
 	}
 	
 	
-	private boolean matchPrebind(String inputString, UnitParser precompiled, String[] captureNames, boolean defaultQuantifiersGreedyP, Hashtable<String, LinkedList<String>> capturedComponents)
+	private boolean matchPrebind(String inputString, Matcher precompiled, String[] captureNames, boolean defaultQuantifiersGreedyP, Hashtable<String, LinkedList<String>> capturedComponents)
 	{
-		UnitParser currentState=null;
-		LinkedList<UnitParser> frontier=null, matchedStates=null,  nextStates=null;
+		Matcher currentState=null;
+		LinkedList<Matcher> frontier=null, matchedStates=null,  nextStates=null;
 		String nonTerminalName;
 		HashSet<String> cNames= null;
 		HashSet<Integer> map;
@@ -778,7 +778,7 @@ public class CFGParser {
 			}
 					
 		}
-		UnitParser s;
+		Matcher s;
 		boolean circularDefinition;
 		int i=0, startIndex;
 		try
@@ -786,8 +786,8 @@ public class CFGParser {
 			
 			currentState=precompiled;
 			currentState.setExecutionParameters(baseState.clone(), 0, 0, inputString, capturedComponents, cNames, null, null, compiledComponents);
-			frontier = new LinkedList<UnitParser>();
-			matchedStates =new LinkedList<UnitParser>();
+			frontier = new LinkedList<Matcher>();
+			matchedStates =new LinkedList<Matcher>();
 			frontier.add(currentState);
 			
 			while (frontier.size()>0)
@@ -795,7 +795,7 @@ public class CFGParser {
 				currentState = removeNextStateFromFrontier(frontier);
 				currentState.setComponentsForSubgrammars(componentsForSubgrammars);
 				
-				nextStates = currentState.matchCompiled();
+				nextStates = currentState.match();
 				i++;
 				if (nextStates!=null)
 				{
@@ -874,9 +874,9 @@ public class CFGParser {
 		return matchedStates!=null&&matchedStates.size()>0;
 	}
 	
-	private boolean findSelfInAncestors(UnitParser state)
+	private boolean findSelfInAncestors(Matcher state)
 	{
-		UnitParser parent = state;
+		Matcher parent = state;
 		String name = state.grammarComponent;
 		int recursionCount = 0;
 		int threshold = 4;
@@ -890,24 +890,24 @@ public class CFGParser {
 		return false;
 	}
 	
-	private void addAllCompiledExtract(UnitParser s, LinkedList<UnitParser> nextStates)
+	private void addAllCompiledExtract(Matcher s, LinkedList<Matcher> nextStates)
 	{
-		UnitParser prior = s.getNonDeterministicPrior();
+		Matcher prior = s.getNonDeterministicPrior();
 		if (prior!=null)
 		{
-			LinkedList<UnitParser> newPoints = prior.compiledFailureUpdate(s, -1);
+			LinkedList<Matcher> newPoints = prior.updateFromParseFailure(s, -1);
 			if (newPoints!=null)
 				nextStates.addAll(newPoints);
 		}
 	}
 	
 	
-	UnitParser removeNextStateFromFrontier(LinkedList<UnitParser> frontier)
+	Matcher removeNextStateFromFrontier(LinkedList<Matcher> frontier)
 	{
 		return frontier.removeLast();
 	}
 	
-	public LinkedList<UnitParser> getOutputSet()
+	public LinkedList<Matcher> getOutputSet()
 	{
 		return endStates;
 	}
@@ -954,7 +954,7 @@ public class CFGParser {
 		LinkedList<String> output = new LinkedList<String>();
 		
 		String patternDefinition =  namedComponents.get("patternName");
-		String[] parts = UnitParser.isAlternation(patternDefinition);
+		String[] parts = Parser.isAlternation(patternDefinition);
 		for (String grammar:parts)
 		{
 			output.add(grammar);
