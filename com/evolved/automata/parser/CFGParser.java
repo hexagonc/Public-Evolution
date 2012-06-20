@@ -1,18 +1,22 @@
 package com.evolved.automata.parser;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.regex.*;
 
-import com.evolved.automata.*;
-import com.evolved.automata.filetools.SimpleLogger;
-
 
 public class CFGParser {
+	/**
+	 * CFGParser is the main class for parsing and matching strings against a context-free grammar.  The syntax for the <br/>
+	 * context-free grammar uses an EBNF-like syntax.  See http://phase-summary.blogspot.com/2012/05/context-free-grammar-parser-and-pattern.html<br/>
+	 * CFGParser actually supports a syntax that is more expressive than context-free grammars, which is why I use the <br/>
+	 * term, EBNF-like syntax.  The actual syntax is a combination of regex notation and Extended Backus-Naur form.
+	 * @author Evolved8
+	 *
+	 */
 	
 	public static class GlobalState
 	{
@@ -754,13 +758,30 @@ public class CFGParser {
 		return match(inputString, pattern, captureNames, defaultQuantifiersGreedyP, new Hashtable<String, LinkedList<String>>());
 	}
 	
+	/**
+	 * Main method for matching a string against a parse-tree of unit pattern matchers.
+	 * @param inputString 
+	 * @param EBNF-like pattern string to parse into a parse-tree
+	 * @param captureNames names of non-terminals to capture
+	 * @param defaultQuantifiersGreedyP 
+	 * @param capturedComponents input parameters
+	 * @return true if the inputstring can be matched by the parse tree or false otherwise
+	 */
 	public boolean match(String inputString, String pattern, String[] captureNames, boolean defaultQuantifiersGreedyP,  Hashtable<String, LinkedList<String>> capturedComponents)
 	{
 		Matcher precompiled = parse(pattern);
 		return matchPrebind(inputString, precompiled, captureNames, defaultQuantifiersGreedyP, capturedComponents);
 	}
 	
-	
+	/**
+	 * Main method for matching a string against a parse-tree of unit pattern matchers.
+	 * @param inputString 
+	 * @param precompiled root of parse-tree 
+	 * @param captureNames names of non-terminals to capture
+	 * @param defaultQuantifiersGreedyP 
+	 * @param capturedComponents input parameters
+	 * @return true if the inputstring can be matched by the parse tree or false otherwise
+	 */
 	private boolean matchPrebind(String inputString, Matcher precompiled, String[] captureNames, boolean defaultQuantifiersGreedyP, Hashtable<String, LinkedList<String>> capturedComponents)
 	{
 		Matcher currentState=null;

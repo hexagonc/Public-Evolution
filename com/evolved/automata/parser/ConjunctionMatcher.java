@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
-public class ConjunctionMatcher extends Matcher 
+class ConjunctionMatcher extends Matcher 
 {
 	
 	public ConjunctionMatcher(String grammarComponent, CFGParser.GlobalState global, Matcher[] subStates)

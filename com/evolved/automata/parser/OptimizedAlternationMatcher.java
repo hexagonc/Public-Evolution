@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
-public class OptimizedAlternationMatcher extends Matcher {
+class OptimizedAlternationMatcher extends Matcher {
 
 	Hashtable<Integer, Hashtable<String, Integer>> matchSet;
 	StringDistribution matchedDistributions;

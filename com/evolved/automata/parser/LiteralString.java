@@ -2,7 +2,7 @@ package com.evolved.automata.parser;
 
 import java.util.LinkedList;
 
-public class LiteralString extends Matcher{
+class LiteralString extends Matcher{
 	
 	public LiteralString(String value, int endIndex)
 	{

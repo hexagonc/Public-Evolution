@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
-public class QuantifierMatcher extends Matcher
+class QuantifierMatcher extends Matcher
 {
 	Integer minimumRequiredMatches;
 	Integer maximimRequiredMatches;

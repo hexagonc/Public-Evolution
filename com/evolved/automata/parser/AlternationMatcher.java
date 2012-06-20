@@ -1,8 +1,8 @@
 package com.evolved.automata.parser;
 
 import java.util.*;
-
-public class AlternationMatcher extends Matcher{
+ 
+class AlternationMatcher extends Matcher{
 	
 	protected int[] endIndiceArray;
 		

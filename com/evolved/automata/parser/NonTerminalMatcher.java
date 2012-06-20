@@ -2,7 +2,7 @@ package com.evolved.automata.parser;
 
 import java.util.*;
 
-public class NonTerminalMatcher extends Matcher
+class NonTerminalMatcher extends Matcher
 {
 	
 	String redefinitionGrammar = null;

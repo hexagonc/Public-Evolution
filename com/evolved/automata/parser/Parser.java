@@ -7,15 +7,15 @@ public class Parser
 {
 	/**
 	 * This class contains methods for building a parse-tree from a string representation
-	 * of a regex pattern.  In fact, this parser can parse more general patterns than
+	 * of an EBNF-like pattern.  In fact, this parser can parse more general patterns than
 	 * standard regular expressions, since it supports back references.  See
 	 * http://phase-summary.blogspot.com/2012/05/context-free-grammar-parser-and-pattern.html for 
-	 * detailed pattern rules.
+	 * detailed pattern rules.  There are also numerous static methods for aiding in the parse
+	 * process. 
 	 * 
 	 */
+	
 	public static boolean debug=true;
-	
-	
 	
 	public static final String wildcard = "~";
 	public static final String whitespace = "$";
@@ -59,67 +59,34 @@ public class Parser
 		return grammar;
 	}
 	
-	public static String[] disjuctionofLiterals(String grammarComponent)
-	{
-		String[] parts = splitPattern(grammarComponent, '|', true);
-		
-		if ((parts!=null)&&(parts.length>1))
-		{
-			for (int i=0;i<parts.length;i++)
-			{
-				if ((parts[i].charAt(0)=='"')&&(parts[i].charAt(parts[i].length()-1) == '"'))
-				{
-					parts[i] = parts[i].substring(1,parts[i].length()-1 );
-				}
-				else
-					return null;
-			}
-			return parts;
-		}
-		else
-		{
-			int L = grammarComponent.length();
-			if (grammarComponent.startsWith("\"")&&grammarComponent.endsWith("\"")&&grammarComponent.substring(1,L-1).indexOf("\"")==-1)
-				return new String[]{grammarComponent.substring(1,grammarComponent.length()-1 )};
-			else
-				return null;
-		}
-			
-	}
 	
-	public static String[] disjuctionofLiteralsSimplified(String grammarComponent)
-	{
-		String[] parts = splitPattern(grammarComponent, '|', true);
-		
-		if ((parts!=null)&&(parts.length>1))
-		{
-			for (int i=0;i<parts.length;i++)
-			{
-				if ((parts[i].charAt(0)=='\'')&&(parts[i].charAt(parts[i].length()-1) == '\''))
-				{
-					parts[i] = parts[i].substring(1,parts[i].length()-1 );
-				}
-				else
-					return null;
-			}
-			return parts;
-		}
-		else
-		{
-			int L = grammarComponent.length();
-			if (grammarComponent.startsWith("'")&&grammarComponent.endsWith("'")&&grammarComponent.substring(1,L-1).indexOf("'")==-1)
-				return new String[]{grammarComponent.substring(1,grammarComponent.length()-1 )};
-			else
-				return null;
-		}
-			
-	}
-	
+	/**
+	 * Recursively builds a parse tree from a pattern string. This is the main method.
+	 * 
+	 * @param global This represents global state for all pattern matchers.  Intended to be used <br/>
+	 * for caching match failures and/or successes to reduce matching the same subtrees.  Not currently <br/>
+	 * used. 
+	 * @param component This is the the pattern string the parse tree is being built from
+	 * @param namedComponents This contains a mapping of nonterminal names to their defining pattern rules
+	 * @return
+	 */
 	public static Matcher parse(CFGParser.GlobalState global,String component, Hashtable<String,String> namedComponents)
 	{
 		return parse(global, component, namedComponents, true);
 	}
 	
+	/**
+	 * Recursively builds a parse tree from a pattern string. This is the main method.  
+	 * 
+	 * @param global This represents global state for all pattern matchers.  Intended to be used <br/>
+	 * for caching match failures and/or successes to reduce matching the same subtrees.  Not currently <br/>
+	 * used. 
+	 * @param component This is the the pattern string the parse tree is being built from
+	 * @param namedComponents This contains a mapping of nonterminal names to their defining pattern rules
+	 * @param defaultQuantifierGreedyP Indicates whether quantifiers are greedy or not by default
+	 * @return root of parse tree for component or null if the pattern string is inconsistent with <br/>
+	 * pattern syntax.
+	 */
 	public static Matcher parse(CFGParser.GlobalState global,  String component, Hashtable<String,String> namedComponents, boolean defaultQuantifierGreedyP)
 	{
 		
@@ -173,7 +140,7 @@ public class Parser
 			return ostate;
 		}
 		
-		String mappedGrammar = isLabel(component, namedComponents);
+		String mappedGrammar = isNonterminal(component, namedComponents);
 		
 		if (mappedGrammar!=null)
 		{	
@@ -255,11 +222,89 @@ public class Parser
 		return null;
 	}
 	
+
+	/**
+	 * Determines whether a string EBNF-like pattern can be parsed into a Alternation of literal <br/>
+	 * strings.  Literal strings are delimited by double-quotes and can not contain the pipe <br/>
+	 * character itself.  If the string literal contains the pipe character than consider using the <br/>
+	 * method convertToTerminalSequencePattern to convert the literal to a raw terminal sequence.  <br/>
+	 * Also matches a single string literal.
+	 * @param grammarComponent EBNF-like pattern 
+	 * @return String array representing each subcomponent of the alternation or null <br/>
+	 * if the string can not be interpreted as a top-level alternation.  Does not include <br/>
+	 * the double-quote delimiters.
+	 */
+	public static String[] disjuctionofLiterals(String grammarComponent)
+	{
+		String[] parts = splitPattern(grammarComponent, '|', true);
+		
+		if ((parts!=null)&&(parts.length>1))
+		{
+			for (int i=0;i<parts.length;i++)
+			{
+				if ((parts[i].charAt(0)=='"')&&(parts[i].charAt(parts[i].length()-1) == '"'))
+				{
+					parts[i] = parts[i].substring(1,parts[i].length()-1 );
+				}
+				else
+					return null;
+			}
+			return parts;
+		}
+		else
+		{
+			int L = grammarComponent.length();
+			if (grammarComponent.startsWith("\"")&&grammarComponent.endsWith("\"")&&grammarComponent.substring(1,L-1).indexOf("\"")==-1)
+				return new String[]{grammarComponent.substring(1,grammarComponent.length()-1 )};
+			else
+				return null;
+		}
+			
+	}
+	
+	/**
+	 * Tests whether grammarComponent specifies a alternation of string literals although, in <br/>
+	 * contrast to the method, disjuctionofLiterals, string literals can be delimited by single or <br/>
+	 * double quotes.
+	 * @param grammarComponent string representing an EBNF-like pattern
+	 * @return String array representing each subcomponent of the alternation or null <br/>
+	 * if the string can not be interpreted as a top-level alternation.  Does not include <br/>
+	 * the double-quote delimiters.
+	 */
+	public static String[] disjuctionofLiteralsSimplified(String grammarComponent)
+	{
+		String[] parts = splitPattern(grammarComponent, '|', true);
+		
+		if ((parts!=null)&&(parts.length>1))
+		{
+			for (int i=0;i<parts.length;i++)
+			{
+				if ((parts[i].charAt(0)=='\'')&&(parts[i].charAt(parts[i].length()-1) == '\''))
+				{
+					parts[i] = parts[i].substring(1,parts[i].length()-1 );
+				}
+				else
+					return null;
+			}
+			return parts;
+		}
+		else
+		{
+			int L = grammarComponent.length();
+			if (grammarComponent.startsWith("'")&&grammarComponent.endsWith("'")&&grammarComponent.substring(1,L-1).indexOf("'")==-1)
+				return new String[]{grammarComponent.substring(1,grammarComponent.length()-1 )};
+			else
+				return null;
+		}
+			
+	}
 	
 	
-	
-	
-	
+	/**
+	 * Determines if an EBNF-like pattern string can be parsed into a conjunction of subpatterns
+	 * @param groupString
+	 * @return
+	 */
 	public static String[] segmentGroup(String groupString)
 	{
 		return splitPatternByCommas(groupString);
@@ -286,7 +331,13 @@ public class Parser
 	}
 	
 	
-	
+	/**
+	 * Determines if an EBNF-like string pattern can be interpreted as a back-reference to a <br/>
+	 * previously captured non-terminal
+	 * @param component
+	 * @return string array where the first component is the base nonterminal name and the second <br/>
+	 * component is the string back-reference index.  Back-reference indices are 1-based
+	 */
 	public static String[] isBackReference(String component)
 	{
 		
@@ -323,9 +374,6 @@ public class Parser
 				return parts;
 			}
 			
-			
-			
-			
 		}
 		return null;
 	}
@@ -350,6 +398,13 @@ public class Parser
 		return new String[]{input.substring(0, pos), input.substring(pos+1)}; 
 	}
 	
+	/**
+	 * Determines whether a string representing an EBNF-like pattern can be interpreted <br/>
+	 * as a terminal symbol
+	 * @param inString
+	 * @return returns the raw character represented by the terminal or null if <br/>
+	 * the pattern can not be considered a terminal symbol
+	 */
 	public static String isTerminal(String inString)
 	{
 		if (inString==null)
@@ -370,7 +425,14 @@ public class Parser
 		
 	}
 	
-	public static String isLabel(String inString, Hashtable<String,String> nonTerminals)
+	/**
+	 * Determines if the string representation of an EBNF-like pattern can be interpreted as a <br/>
+	 * non-terminal symbol.
+	 * @param inString pattern string
+	 * @param nonTerminals A hashtable mapping non-terminal names to their pattern definition
+	 * @return Returns the definition of the non-terminal string if it is a non-terminal, else null
+	 */
+	public static String isNonterminal(String inString, Hashtable<String,String> nonTerminals)
 	{
 		if (nonTerminals==null)
 			return null;
@@ -379,6 +441,13 @@ public class Parser
 		return null;
 	}
 	
+	/**
+	 * Determines if an EBNF-like pattern string can be interpreted as an alternation of
+	 * smaller patterns
+	 * @param inString pattern
+	 * @return Returns an array of each smaller pattern or null if the other overall pattern <br/>
+	 * isn't an alternation.
+	 */
 	public static  String[] isAlternation(String inString)
 	{
 		String[] parts = splitPattern(inString, '|', true);
@@ -388,6 +457,12 @@ public class Parser
 			return null;
 	}
 	
+	
+	/**
+	 * Same as isAlternation
+	 * @param inString
+	 * @return
+	 */
 	public static  String[] isDeterministicAlternation(String inString)
 	{
 		String[] parts = splitPattern(inString, '!', true);
@@ -397,6 +472,12 @@ public class Parser
 			return null;
 	}
 	
+	/**
+	 * Determines whether an EBNF-like pattern can be interpreted as a smaller pattern contained <br/>
+	 * in parenthesis
+	 * @param inString
+	 * @return The parenthesized pattern or null if the string is not a parenthesized pattern
+	 */
 	public static  String isGroup(String inString)
 	{
 		char[] values = inString.toCharArray();
@@ -429,6 +510,13 @@ public class Parser
 		return null;
 	}
 	
+	/**
+	 * Determines whether an EBNF-like pattern can be interpreted as another pattern <br/>
+	 * quantified.  
+	 * @param inString
+	 * @return Returns a QuantifierInfo object containing quantifier properties or null if <br/>
+	 * the pattern is not a quantifier
+	 */
 	public static  QuantifierInfo isQuantifier(String inString)
 	{
 		int len = inString.length();
@@ -639,6 +727,12 @@ public class Parser
 		return 0;
 	}
 	
+	/**
+	 * Determines whether an EBNF-like pattern can be interpreted as a conjunction of smaller <br/>
+	 * sub-patterns.  If sub-patterns are string literals then they can not contain commas.
+	 * @param inString pattern string
+	 * @return Array of each sub-pattern or null if inString is not a conjunction
+	 */
 	
 	public static  String[] isConjunction(String inString)
 	{
@@ -662,7 +756,12 @@ public class Parser
 		return (pos >0)&&(pos < array.length-1)&&(array[pos+1]=='\'') && ((array[pos - 1]=='\'')||((pos - 2 >=0)&&(array[pos-2]=='\'')&&(array[pos - 1]=='\\')));
 	}
 	
-	
+	/**
+	 * Splits a string representing a regular expression pattern by comma unless that comma <br/>
+	 * is quoted in single quotes
+	 * @param tokenizedString The pattern string
+	 * @return Returns a string array of each trimmed component delimited by commas
+	 */
 	public static String[] splitPatternByCommas(String tokenizedString)
 	{
 		return splitPattern(tokenizedString,',',true);
@@ -773,134 +872,13 @@ public class Parser
 		
 	}
 	
-
 	
-	public static String stringToTerminalSequence(String input) {
-		final int INITIAL = 0;
-		final int IN_QUOTE = 1;
-		final int OUT_QUOTE = 2;
-		final int ESCAPE_SEEN_OUT_QUOTE = 3;
-		final int ESCAPE_SEEN_IN_QUOTE = 4;
-		final int ESCAPE_CHAR = 0;
-		final int QUOTE = 1;
-		final int NEITHER = 2;
-		int state = INITIAL;
-		int event;
-		char[] chars = input.toCharArray();
-		StringBuffer currentQuoted = null;
-		StringBuffer overallOutput = new StringBuffer();
-		for (int i = 0; i < chars.length; i++) {
-			switch (chars[i]) {
-			case '\"':
-				event = QUOTE;
-				break;
-			case '\\':
-				event = ESCAPE_CHAR;
-				break;
-			default:
-				event = NEITHER;
-			}
-			switch (state) {
-			case INITIAL:
-				switch (event) {
-				case NEITHER:
-					overallOutput.append(chars[i]);
-					state = OUT_QUOTE;
-					break;
-				case ESCAPE_CHAR:
-					overallOutput.append(chars[i]);
-					state = ESCAPE_SEEN_OUT_QUOTE;
-					break;
-				case QUOTE:
-					currentQuoted = new StringBuffer();
-					state = IN_QUOTE;
-					break;
-				}
-				break;
-			case OUT_QUOTE:
-				switch (event) {
-				case NEITHER:
-					overallOutput.append(chars[i]);
-					state = OUT_QUOTE;
-					break;
-				case ESCAPE_CHAR:
-					overallOutput.append(chars[i]);
-					state = ESCAPE_SEEN_OUT_QUOTE;
-					break;
-				case QUOTE:
-					currentQuoted = new StringBuffer();
-					state = IN_QUOTE;
-					break;
-				}
-				break;
-			case IN_QUOTE:
-				switch (event) {
-				case NEITHER:
-					currentQuoted.append(chars[i]);
-					state = IN_QUOTE;
-					break;
-				case ESCAPE_CHAR:
-					currentQuoted.append(chars[i]);
-					state = ESCAPE_SEEN_IN_QUOTE;
-					break;
-				case QUOTE:
-					overallOutput.append(convertToTerminal(currentQuoted
-							.toString()));
-					state = OUT_QUOTE;
-					break;
-				}
-				break;
-			case ESCAPE_SEEN_OUT_QUOTE:
-				switch (event) {
-				case NEITHER:
-					overallOutput.append(chars[i]);
-					state = OUT_QUOTE;
-					break;
-				case ESCAPE_CHAR:
-					overallOutput.append(chars[i]);
-					state = ESCAPE_SEEN_OUT_QUOTE;
-					break;
-				case QUOTE:
-					overallOutput.append(chars[i]);
-					state = OUT_QUOTE;
-					break;
-				}
-				break;
-			case ESCAPE_SEEN_IN_QUOTE:
-				switch (event) {
-				case NEITHER:
-					currentQuoted.append(chars[i]);
-					state = IN_QUOTE;
-					break;
-				case ESCAPE_CHAR:
-					currentQuoted.append(chars[i]);
-					state = ESCAPE_SEEN_IN_QUOTE;
-					break;
-				case QUOTE:
-					currentQuoted.append(chars[i]);
-					state = IN_QUOTE;
-					break;
-				}
-				break;
-			}
-		}
-		// finishing
-		switch (state) {
-		case INITIAL:
-			return "";
-		case OUT_QUOTE:
-		case ESCAPE_SEEN_OUT_QUOTE:
-			return overallOutput.toString();
-		case IN_QUOTE: // this is an invalid state
-		case ESCAPE_SEEN_IN_QUOTE:
-		default:
-			return null;
-		}
-	}
-
-	
-	
-	public static String convertToTerminal(String input)
+	/**
+	 * Converts a string into a pattern representing a sequence of terminal characters
+	 * @param input string 
+	 * @return pattern representing a sequence of terminal symbols that will match input
+	 */
+	public static String convertToTerminalSequencePattern(String input)
 	{
 		if ((input==null)||(input.length()==0))
 			return "";

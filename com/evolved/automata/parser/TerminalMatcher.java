@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
-public class TerminalMatcher extends Matcher 
+class TerminalMatcher extends Matcher 
 {
 	
 	

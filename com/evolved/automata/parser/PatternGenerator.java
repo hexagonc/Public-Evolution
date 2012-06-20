@@ -804,7 +804,7 @@ public abstract class PatternGenerator {
 				subStates[i]=compile(parentBuilder, parts[i]);
 			return new ConjunctionDistribution(parentBuilder, patternComponent, subStates);
 		}
-		String mappedGrammar = Parser.isLabel(patternComponent, parentBuilder.getNonterminalMap());
+		String mappedGrammar = Parser.isNonterminal(patternComponent, parentBuilder.getNonterminalMap());
 		
 		if (mappedGrammar!=null)
 		{	
@@ -818,7 +818,7 @@ public abstract class PatternGenerator {
 				match=true;
 				for (String s:subParts)
 				{
-					if (Parser.isLabel(s, parentBuilder.getNonterminalMap())!=null)
+					if (Parser.isNonterminal(s, parentBuilder.getNonterminalMap())!=null)
 					{
 						gen = new NonterminalDistribution(parentBuilder, s);
 						input.put(s, gen);
