@@ -30,8 +30,8 @@ public class SetOperationTester {
 			for (String s:cSet)
 				compList.add(s);
 			setcomparer = new StringSetCompare();
-			//setcomparer.setDifferencesFastAlgorithm(baseList, compList);
-			setcomparer.setDifferences(baseList, compList);
+			setcomparer.setDifferencesFastAlgorithm(baseList, compList);
+			//setcomparer.setDifferences(baseList, compList);
 			boolean first=true;
 			System.out.print("Added strings: ");
 			for (String s:setcomparer.getAdded())

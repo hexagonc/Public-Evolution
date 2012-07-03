@@ -128,8 +128,7 @@ public class StringSetCompare
 	
 	public void setDifferencesFastAlgorithm(ArrayList<String> base, ArrayList<String> comp)
 	{
-		added = new ArrayList<String>();
-		removed = new ArrayList<String>();
+		
 		String[] array_baseStrings = base.toArray(new String[0]);
 		String[] array_compStrings = comp.toArray(new String[0]);
 		
@@ -157,27 +156,7 @@ public class StringSetCompare
 		for (String sc:array_compStrings)
 			comp.add(sc);
 				
-		int i=0, j=0, maxi=base.size(), maxj= comp.size();
-
-		while (i!=maxi || j!=maxj)
-		{
-		    if (i!=maxi && j!=maxj && comp.get(j).equals(base.get(i)))
-		    {
-		        i = Math.min(i+1, maxi);
-		        j = Math.min(j+1, maxj);
-		    }
-		    else if (j==maxj || base.get(i).compareTo(comp.get(j))<0)
-	        {
-	            removed.add(base.get(i));
-	            i = Math.min(i+1, maxi);
-	        }
-	        else if (i == maxi || comp.get(j).compareTo(base.get(i))<0)
-	        {
-	            added.add(comp.get(j));
-	            j = Math.min(j+1, maxj);
-	        }
-		    
-		}
+		setDifferencesPresorted(base, comp);
 	}
 	
 	
