@@ -7,6 +7,9 @@ import java.util.*;
 import com.evolved.automata.filetools.*;
 import com.evolved.automata.parser.*;
 import java.io.*;
+import java.util.regex.*;
+import java.util.regex.Matcher;
+
 
 public class MathTester {
 
@@ -15,16 +18,21 @@ public class MathTester {
 	 */
 	public static void main(String[] args) 
 	{
-		String grammarFile = "/Users/Evolved8/Documents/math_patterns.txt";
+		String grammarResource = "/com/evolved/automata/test/MathPatternDef.txt";
+		BufferedReader greader;
+		
 		CFGParser parser = null;
 		String inputString = "5 take away 7 times 12 plus five fifths of one percent of 50 plus three ";
 		LinkedList<String> results;
 		String[] expr = new String[]{"6", "*", "87", "*", "123", "+", "sin", "x", "+", "cos", "x", "*", "sin", "y"};
 		String[] expected = new String[]{"6", "87", "123", "*", "*", "x", "sin", "x", "cos", "+", "y", "sin", "*", "+"};
 		String[] out = null;
+		
+		
 		try
 		{
-			parser = new CFGParser(grammarFile);
+			greader = StandardTools.getReaderFromPackageResource(grammarResource);
+			parser = new CFGParser(greader);
 			if (parser.match(inputString, "simple_expression, '^'", new String[]{"base_arg", "arg_group"}))
 			{
 				System.out.println(parser.getFirstCapturedList("base_arg"));
@@ -38,6 +46,8 @@ public class MathTester {
 				System.out.print(s);
 			}
 			System.out.println();
+			
+				
 		}
 		catch (Exception e)
 		{

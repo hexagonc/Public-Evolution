@@ -1,0 +1,26 @@
+
+integer = '#'+, ' '
+decimal = '#'+, '.', '#'+, ' '
+int_part = '#'+, ' '
+fract_part = '#'+, ' '
+decimal_name = "point " | "dot "
+decimal_word = int_part?, decimal_name, fract_part, ' '
+number = decimal_word | integer | decimal
+
+
+
+word_char = '@' | '-' | '\'' | '_' | '#' | '.'
+word = word_char+, ' '
+arg = (operator`, word)+
+base_arg = (operator`, word)+
+
+
+multiply = "times " | "of "
+add = "plus " | "add "
+subtract = "minus " | "take away " | "subtract "
+reverse_subtract = "from "
+divide = "divided by "
+
+operator =  multiply | divide | add | subtract | reverse_subtract
+arg_group = operator, arg
+simple_expression = base_arg, arg_group+

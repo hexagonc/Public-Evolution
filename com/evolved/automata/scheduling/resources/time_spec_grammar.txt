@@ -1,0 +1,85 @@
+nvalue='#'+
+number_name = "first " | "second " | "forth " | "fourth " | "third "
+
+number = (nvalue, ("st" | "nd" | "th")?, ' ') | number_name
+hour = number
+minute = number
+am = ("am " | "eh em " | "a m ")
+pm = ("pm " | "p m " | "pee em ")
+time_half = am | pm
+
+day_time = hour, minute?, "o'clock "?, time_half?
+weekday = "monday " | "tuesday " | "wednesday " | "thursday " | "friday " | "saturday " | "sunday "
+month = "january " | "february " | "march " | "april " | "may " | "june " | "july " | "august " | "october " | "september " | "november " | "december "
+
+hours = "hour " | "hours "
+minutes = "minute " | "minutes "
+days = "day " | "days "
+months = "month " | "months "
+years = "year " | "years "
+weeks = "week " | "weeks "
+
+hours_interval = number, hours
+minutes_interval = number, minutes
+days_interval = number, days
+months_interval = number, months
+years_interval = number, years
+weeks_interval = number, weeks
+
+interval_word_spec = hours | minutes | days | months | years | weeks
+
+interval_spec = weeks_interval | hours_interval | minutes_interval | days_interval | months_interval | years_interval
+total_interval_spec = (singular_interval | interval_spec), ("and "?, interval_spec)*
+
+
+coarse_time = "week " | "month " | "year "
+
+
+range_prep = "by " | "within " | "in "
+instant_prep = "on " | "at " | "after "
+time_prep = range_prep | instant_prep
+absolute_time_only = time_prep, day_time
+absolute_date_only = time_prep, (absolute_number_canonical_date | absolute_date_long | coarse)
+absolute_date_first = absolute_date_only, absolute_time_only
+absolute_date_optional_prep = time_prep?, (absolute_number_canonical_date | absolute_date_long | coarse)
+absolute_time_first = absolute_time_only, absolute_date_optional_prep
+
+
+
+month_num = nvalue
+day = nvalue
+year = '#', '#', '#', '#'
+absolute_number_canonical_date = month_num, ' ', day, ' ', year, ' '
+absolute_date_long =  (month, day, ("th " | "st " | "rd " | "nd " | ' '), year, ' ' ) | ("the ", (number_name | (day, ("th " | "st " | "rd " | "nd "))), "of ", month, (("in " | "on ")?, year, ' ')?)
+
+coarse = "tomorrow "
+
+
+singular_interval = ("an " | "a "), interval_word_spec
+
+relative_prep = "by "
+relative_weekoffset = "next "
+; *************************************************************
+;; ********* BEGIN Major top-level Time Types *****************
+; *************************************************************
+
+relative_date = relative_prep?, ((relative_weekoffset?, weekday) | (relative_weekoffset, coarse_time)), (time_prep, day_time)?
+by_absolute_time =  absolute_time_only | absolute_date_only | absolute_date_first | absolute_time_first
+by_relative_forward_interval = time_prep, total_interval_spec, (("past " | "passed " | "after "), day_time)?
+
+;; ***********
+;; Need to handle the case below with pattern transformations instead of an alternation
+;; ***********
+
+future_now_relative = (time_prep?, total_interval_spec, "from now ") | (time_prep, total_interval_spec)
+short_coarse_date = coarse, absolute_time_only?
+by_relative_time_back_interval = time_prep, total_interval_spec, ("til " | "until " | "till " | "before "), day_time
+
+; *************************************************************
+;; ********* END Major top-level Time Types *****************
+; *************************************************************
+
+
+;; ********** Top level Grammar to match ********************
+time_pattern=time_type
+time_type =  short_coarse_date | by_relative_time_back_interval | future_now_relative | by_relative_forward_interval | by_absolute_time | relative_date
