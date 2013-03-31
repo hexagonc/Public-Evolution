@@ -9,6 +9,7 @@ import com.evolved.automata.parser.*;
 import java.io.*;
 import java.util.regex.*;
 import java.util.regex.Matcher;
+import com.evolved.automata.parser.math.*;
 
 
 public class MathTester {
@@ -25,10 +26,11 @@ public class MathTester {
 		String inputString = "5 take away 7 times 12 plus five fifths of one percent of 50 plus three ";
 		LinkedList<String> results;
 		String[] expr = new String[]{"6", "*", "87", "*", "123", "+", "sin", "x", "+", "cos", "x", "*", "sin", "y"};
+		String[] expr2 = new String[]{"sin", "(", "6", ",", "89", ")", "+", "100"};
 		String[] expected = new String[]{"6", "87", "123", "*", "*", "x", "sin", "x", "cos", "+", "y", "sin", "*", "+"};
 		String[] out = null;
 		
-		
+		// 6*(87+123+sin(2))+50*100
 		try
 		{
 			greader = StandardTools.getReaderFromPackageResource(grammarResource);
@@ -47,7 +49,16 @@ public class MathTester {
 			}
 			System.out.println();
 			
-				
+			out = Expression.convertToRPL(expr2);
+			for (String s:out)
+			{
+				System.out.print(" ");
+				System.out.print(s);
+			}
+			System.out.println();
+			
+			Expression exp = Expression.parse("6*(87+123+sin(2))+50*100", null);
+			System.out.println(exp.getDoubleValue());
 		}
 		catch (Exception e)
 		{
