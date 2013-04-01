@@ -41,23 +41,9 @@ public class MathTester {
 				System.out.println(parser.getFirstCapturedList("arg_group"));
 			}
 			
-			out = convertToRPL(expr);
-			for (String s:out)
-			{
-				System.out.print(" ");
-				System.out.print(s);
-			}
-			System.out.println();
 			
-			out = Expression.convertToRPL(expr2);
-			for (String s:out)
-			{
-				System.out.print(" ");
-				System.out.print(s);
-			}
-			System.out.println();
 			
-			Expression exp = Expression.parse("6*(87+123+sin(2))+50*100", null);
+			Expression exp = ExpressionFactory.parse("6*(87+123+sin(2))+50*100", null);
 			System.out.println(exp.getDoubleValue());
 		}
 		catch (Exception e)
@@ -72,96 +58,5 @@ public class MathTester {
 
 	}
 	
-	public static final String[][] operators = new String[][]{new String[]{"+", "-"}, new String[]{"*", "/"}, new String[]{"^", "sin", "cos"}};
 	
-	
-	public static String[] convertToRPL(String[] algebraic_expr)
-	{
-		return convertToRPL(0, 0, algebraic_expr.length-1, algebraic_expr);
-	}
-	
-	public static final HashSet<String> infixOperators;
-	public static final HashSet<String> prefixOperators;
-	//public static final HashSet<String> postfixOperators;
-	static
-	{
-		infixOperators = new HashSet<String>();
-		infixOperators.add("+");
-		infixOperators.add("-");
-		infixOperators.add("*");
-		infixOperators.add("/");
-		infixOperators.add("^");
-		
-		prefixOperators = new HashSet<String>();
-		prefixOperators.add("sin");
-		prefixOperators.add("cos");
-	}
-	
-	public static String[] convertToRPL(final int opPrec, final int start, final int end, final String[] algebraic_expr)
-	{
-		if (opPrec == operators.length)
-		{
-			return new String[]{algebraic_expr[start]};
-		}
-		String[] left;
-		String[] right;
-		for (int i=start;i<=end;i++)
-		{
-			for (int j=0;j<operators[opPrec].length;j++)
-			{
-				String operator = operators[opPrec][j];
-				if (algebraic_expr[i].equals(operator))
-				{
-					if (infixOperators.contains(operator))
-					{
-						
-						left = convertToRPL(opPrec, start, i-1, algebraic_expr);
-						right = convertToRPL(opPrec, i+1, end, algebraic_expr);
-						return add(add(left, right), operator);
-					}
-					else if (prefixOperators.contains(operator))
-					{
-						right = convertToRPL(opPrec, i+1, end, algebraic_expr);
-						return add(right, operator);
-					}
-					else 
-					{
-						left = convertToRPL(opPrec, start, i-1, algebraic_expr);
-						return add(left, operator);
-					}
-					
-				}
-			}
-			
-		}
-		
-		return convertToRPL(opPrec+1, start, end, algebraic_expr);
-	}
-	
-	public static String[] add(String[] list, String value)
-	{
-		String[] out = new String[list.length+1];
-		for (int i=0;i<list.length;i++)
-			out[i] = list[i];
-		out[list.length] = value;
-		return out;
-	}
-	
-	public static String[] add(String[] l1, String[] l2)
-	{
-		int total = 0;
-		String[] out = new String[total = (l1.length + l2.length)];
-		int j=0;
-		for (int i=0;i<l1.length;i++)
-		{
-			out[j] = l1[i];
-			j++;
-		}
-		for (int i=0;i<l2.length;i++)
-		{
-			out[j] = l2[i];
-			j++;
-		}
-		return out;
-	}
 }
