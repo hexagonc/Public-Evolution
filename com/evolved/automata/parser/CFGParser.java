@@ -284,7 +284,7 @@ public class CFGParser {
 		{
 			while ((definition = grammarResourceName.readLine())!=null)
 			{
-				if (definition.length()>0)
+				if (definition.trim().length()>0)
 				{
 					if (!definition.substring(0, 1).equals(Parser.commentChar))
 					{
@@ -634,6 +634,7 @@ public class CFGParser {
 	
 	
 	
+	
 	public Hashtable<String, LinkedList<String>> matchPathExtrude(String inputString, String grammarComponent, String[] captureNames)
 	{
 		return matchPathExtrude(inputString, grammarComponent,captureNames, null);
@@ -675,7 +676,7 @@ public class CFGParser {
 		match = match(inputString, grammarComponent, totalKeys.toArray(new String[0]));
 		if (match)
 		{
-			Hashtable<String, LinkedList<String>> resultSet = getFirstCaptureSet(), baseSet, outputSet;
+			Hashtable<String, LinkedList<String>> resultSet = getCaptureSet(), baseSet, outputSet;
 			outputSet = new Hashtable<String, LinkedList<String>>();
 			LinkedList<String> remapped= null, old;
 			String input, grammar, captureComponent;
@@ -700,7 +701,7 @@ public class CFGParser {
 						match = match(input, subGrammar, new String[]{captureComponent});
 						if (match)
 						{
-							baseSet = getFirstCaptureSet();
+							baseSet = getCaptureSet();
 							if (!baseSet.containsKey(captureComponent))
 								continue nextAttempt;
 							input = baseSet.get(captureComponent).getFirst();
@@ -731,23 +732,41 @@ public class CFGParser {
 			return null;
 	}
 	
-	public boolean matchCompiled(String inputString, Matcher precompiled, String[] captureNames)
+	public boolean match(String inputString, Matcher precompiled, String[] captureNames)
 	{
-		return matchCompiled(inputString, precompiled, captureNames, true, new Hashtable<String, LinkedList<String>>());
+		return match(inputString, precompiled, captureNames, true, new Hashtable<String, LinkedList<String>>());
 	}
 	
-	public boolean matchCompiled(String inputString, Matcher precompiled, String[] captureNames,  boolean defaultQuantifiersGreedyP )
+	public boolean match(String inputString, Matcher precompiled, String[] captureNames,  boolean defaultQuantifiersGreedyP )
 	{
-		return matchCompiled(inputString, precompiled, captureNames, defaultQuantifiersGreedyP, new Hashtable<String, LinkedList<String>>());
+		return match(inputString, precompiled, captureNames, defaultQuantifiersGreedyP, new Hashtable<String, LinkedList<String>>());
 	}
 	
-	public boolean matchCompiled(String inputString, Matcher precompiled, String[] captureNames, boolean defaultQuantifiersGreedyP ,  Hashtable<String, LinkedList<String>> capturedComponents)
+	public boolean match(String inputString, Matcher precompiled, String[] captureNames, boolean defaultQuantifiersGreedyP ,  Hashtable<String, LinkedList<String>> capturedComponents)
 	{
 		return matchPrebind(inputString, precompiled, captureNames, defaultQuantifiersGreedyP, capturedComponents);
 	}
 	
 	
+	/**
+	 * Simplest method for matching a string against a pattern.  This is for matching a single pattern<br/>
+	 * @param inputString
+	 * @param EBNF-like pattern string to parse into a parse-tree
+	 * @param captureNames names of non-terminals to capture
+	 */
+	public boolean match(String inputString, String grammarComponent)
+	{
+		
+		return match(inputString, grammarComponent, null);
+	}
 	
+	
+	/**
+	 * Main method for matching a string against a parse-tree of unit pattern matchers.
+	 * @param inputString 
+	 * @param EBNF-like pattern string to parse into a parse-tree
+	 * @param captureNames names of non-terminals to capture
+	 */
 	public boolean match(String inputString, String grammarComponent, String[] captureNames)
 	{
 		return match(inputString, grammarComponent, captureNames, true, new Hashtable<String, LinkedList<String>>());
@@ -928,10 +947,6 @@ public class CFGParser {
 		return frontier.removeLast();
 	}
 	
-	public LinkedList<Matcher> getOutputSet()
-	{
-		return endStates;
-	}
 	
 	public int getFirstResultEndIndex()
 	{
@@ -941,7 +956,7 @@ public class CFGParser {
 			return -1;
 	}
 	
-	public Hashtable<String, LinkedList<String>> getFirstCaptureSet()
+	public Hashtable<String, LinkedList<String>> getCaptureSet()
 	{
 		if ((endStates!=null)&&(endStates.size()>0))
 			return endStates.getFirst().getCaptureSet();
@@ -952,7 +967,7 @@ public class CFGParser {
 	public LinkedList<String> getFirstCapturedList(String name)
 	{
 		
-		Hashtable<String, LinkedList<String>> list = getFirstCaptureSet();
+		Hashtable<String, LinkedList<String>> list = getCaptureSet();
 		if ((list == null)||(!list.containsKey(name)))
 			return null;
 		return list.get(name);
@@ -961,7 +976,7 @@ public class CFGParser {
 	
 	public String getFirstCapturedValue(String key)
 	{
-		Hashtable<String, LinkedList<String>> captured = getFirstCaptureSet();
+		Hashtable<String, LinkedList<String>> captured = getCaptureSet();
 		if ((captured!=null)&&(captured.containsKey(key)))
 		{
 			return captured.get(key).getFirst();

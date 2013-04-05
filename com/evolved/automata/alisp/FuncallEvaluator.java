@@ -51,6 +51,7 @@ public class FuncallEvaluator implements CompiledEvaluator {
 		if (args==null||args.length==0)
 			return null;
 		String sValue;
+		Argument function;
 		try
 		{
 			while (true)
@@ -58,8 +59,19 @@ public class FuncallEvaluator implements CompiledEvaluator {
 				switch (state)
 				{
 					case GETTING_FUNCTION:
-						sValue = (String)args[0].oValue;
-						Argument mapped = env.getVariableValue(sValue);
+						// TODO: Finish making this work for built-in functions
+						function = getFinalValue(false, args[0]);
+						Argument mapped;
+						if (function.oValue instanceof String)
+						{
+							sValue = (String)args[0].oValue;
+							mapped  = env.getVariableValue(sValue);
+						}
+						else
+						{
+							mapped = function;
+						}
+						
 						
 						if (!Environment.isNull(mapped) && mapped.isLambda())
 						{

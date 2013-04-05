@@ -51,6 +51,14 @@ public class Function implements Argument
 		}
 	};
 	
+	public static final SimpleDoubleFunction _PERCENT = new SimpleDoubleFunction()
+	{
+		public double evaluate(double ... args)
+		{
+			return args[0]/100;
+		}
+	};
+	
 	static
 	{
 		_eMap = new HashMap<String, Function.SimpleDoubleFunction>();
@@ -58,12 +66,15 @@ public class Function implements Argument
 		_eMap.put("sq", _SQUARE);
 		_eMap.put("sin", _SIN);
 		_eMap.put("cos", _COS);
+		_eMap.put("percent", _PERCENT);
 		
 		_argumentCountMap = new HashMap<String, Integer>();
 		_argumentCountMap.put("-",1);
 		_argumentCountMap.put("sq",1);
 		_argumentCountMap.put("sin", 1);
 		_argumentCountMap.put("cos", 1);
+		_argumentCountMap.put("percent", 1);
+		
 	
 	}
 	

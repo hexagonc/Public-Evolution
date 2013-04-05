@@ -92,6 +92,7 @@ public class Environment {
 		functionsNames.put("when", new WhenEvaluator(this));
 		functionsNames.put("unless", new UnlessEvaluator(this));
 		functionsNames.put("cond", new CondEvaluator(this));
+		functionsNames.put("apply", new ApplyEvaluator(this));
 		this.addLexicalEvaluators("let");
 		this.addLexicalEvaluators("lambda");
 		this.addLexicalEvaluators("mapcar");
@@ -99,6 +100,12 @@ public class Environment {
 		this.addLexicalEvaluators("all");
 		this.addLexicalEvaluators("some");
 		this.addLexicalEvaluators("find");
+	}
+	
+	public void clearEnvironment()
+	{
+		addStandardFunctions();
+		addStaticFunctions();
 	}
 	
 	public void addLexicalEvaluators(String name)
@@ -146,7 +153,18 @@ public class Environment {
 		staticFunctions.put("#'",sEvaluator);
 		staticFunctions.put("read-url",sEvaluator);
 		staticFunctions.put("read-surl",sEvaluator);
+		staticFunctions.put("reload",sEvaluator);
+		staticFunctions.put("load",sEvaluator);
+		staticFunctions.put("multiple-bind",sEvaluator);
+		staticFunctions.put("min",sEvaluator);
+		staticFunctions.put("max",sEvaluator);
+		staticFunctions.put("incr",sEvaluator);
+		staticFunctions.put("decr",sEvaluator);
+		staticFunctions.put("get-list-mode",sEvaluator);
+		staticFunctions.put("get-list-average",sEvaluator);
+		staticFunctions.put("get-best-result",sEvaluator);
 	}
+	
 	
 	
 	public Environment(Environment prev)
@@ -156,6 +174,14 @@ public class Environment {
 		lexical = prev.lexical;
 		addStaticFunctions();
 		
+	}
+	
+	public Environment getRootEnvironment()
+	{
+		Environment out = this;
+		while (out.prevEnvironment!=null)
+			out = out.prevEnvironment;
+		return out;
 	}
 	
 	public CompiledEvaluator parserIntoEvaluator(String s_expression)
@@ -172,13 +198,19 @@ public class Environment {
 		return null;
 	}
 	
-	
+	/**
+	 * This method allows you to execute a Lisp expression directly into the environment <br/>
+	 * and get a result.  Generally, this result will have to be converted to a Java type in
+	 * order to be useful.
+	 * @param input
+	 * @return
+	 */
 	public Argument getParsedResult(String input)
 	{
 		return getParsedResult(false,input);
 	}
 	
-	public Argument getParsedResult(boolean resume,String s_expression)
+	private Argument getParsedResult(boolean resume,String s_expression)
 	{
 		ParserResult result = parse(s_expression);
 		if (result==null)
@@ -198,12 +230,12 @@ public class Environment {
 		return evaluator.getCompiledResult(resume);
 	}
 	
-	public ParserResult parse(String input)
+	private ParserResult parse(String input)
 	{
 		return parse(null, input, 0);
 	}
 	
-	public ParserResult parse(Environment env, String input, int start)
+	private ParserResult parse(Environment env, String input, int start)
 	{
 		
 		//leading whitespace
@@ -544,6 +576,41 @@ public class Environment {
 	public CompiledEvaluator getFunction(String name)
 	{
 		Hashtable<String, CompiledEvaluator> map = functionsNames;
+		boolean cont=true;
+		CompiledEvaluator cEvaluator;
+		boolean lexicalScopeP = lexical!=null&&lexical.contains(name);
+		Environment currentEnvironment=this;
+		while (cont)
+		{
+			if (map!=null&&map.containsKey(name))
+			{
+				cEvaluator = map.get(name);
+				cEvaluator = (CompiledEvaluator)cEvaluator.clone();
+				if (lexicalScopeP || cEvaluator instanceof RovingLexicalEvaluator|| cEvaluator instanceof LambdaFunctionEvaluator)
+				{
+					cEvaluator.setEnvironment(new Environment(this));
+				}
+				else
+				{
+					cEvaluator.setEnvironment(this);
+				}
+				
+				return cEvaluator;
+			}
+			if (currentEnvironment.prevEnvironment!=null)
+			{
+				currentEnvironment = currentEnvironment.prevEnvironment;
+				map = currentEnvironment.functionsNames;
+			}
+			else
+				return null;
+		}
+		return null;
+	}
+	
+	private CompiledEvaluator getStaticFunction(String name)
+	{
+		Hashtable<String, CompiledEvaluator> map = staticFunctions;
 		boolean cont=true;
 		CompiledEvaluator cEvaluator;
 		boolean lexicalScopeP = lexical!=null&&lexical.contains(name);
@@ -982,8 +1049,18 @@ public class Environment {
 	public Object evaluateScalarFunction(String fName, Object ... params)
 	{
 		Argument[] fArgs = makeArgArray(params);
-		CompiledEvaluator cEvaluator = getFunction(fName);
-		Argument output = cEvaluator.eval(fArgs);
+		CompiledEvaluator cEvaluator = getFunction(fName); 
+		if (cEvaluator == null)
+		{
+			cEvaluator = getStaticFunction(fName);
+			fArgs = new Argument[params.length+1];
+			fArgs[0] = makeAtom(fName);
+			for (int i=0;i<params.length;i++)
+				fArgs[i+1] = makeAtom(params[i]);
+		}
+		cEvaluator = cEvaluator.clone();
+		cEvaluator.setArgs(fArgs);
+		Argument output = cEvaluator.getCompiledResult(false);
 		return getDataFromArgument(output);
 	}
 	

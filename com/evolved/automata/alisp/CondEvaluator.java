@@ -43,6 +43,7 @@ public class CondEvaluator implements CompiledEvaluator {
 	boolean evaluatingConditionP=true;
 	
 	/**
+	 * Usage: (cond (expr1 value1) (expr2 value2) . . . )
 	  Returns the first of a list of conditions that is true
 	*/
 	@Override

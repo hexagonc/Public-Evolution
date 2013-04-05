@@ -40,6 +40,20 @@ public class Expression
 		return null;
 	}
 	
+	public Argument getEvaluate()
+	{
+		LinkedList<Argument> evaluationStack = new LinkedList<Argument>();
+		for (Argument a:_argStack)
+		{
+			a.evaluate(evaluationStack);
+		}
+		if (evaluationStack.size()==1)
+		{
+			return evaluationStack.getFirst();
+		}
+		return null;
+	}
+	
 	public double getDoubleValue()
 	{
 		SimpleDoubleArgument o = getDoubleArgument();

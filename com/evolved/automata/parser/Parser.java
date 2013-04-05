@@ -3,7 +3,7 @@ import java.util.*;
 
 
 
-public class Parser 
+class Parser 
 {
 	/**
 	 * This class contains methods for building a parse-tree from a string representation

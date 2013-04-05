@@ -42,6 +42,13 @@ public class SwitchEvaluator implements CompiledEvaluator {
 		this.env = env;
 	}
 
+	/**
+	 * Switch - first value is an argument to evaluate
+	 * Remaining arguments are lists where the first value is a value to compare the first to and 
+	 * the remaining value is an expression to return
+	 * example:
+	 * (switch expr (expr1 value1) (expr2 value2) . . . )
+	 */
 	@Override
 	public Argument eval(Argument[] args) {
 		if (args == null||args.length<2)

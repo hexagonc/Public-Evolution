@@ -73,6 +73,10 @@ public class SetQEvaluator implements CompiledEvaluator{
 						nArg = Environment.makeAtom(rvalue.oValue);
 						
 					}
+					else if (rvalue!=null&&rvalue.isCons()&&rvalue.innerList.length==0)
+					{
+						nArg = new Argument(null, null, new Argument[0]);
+					}
 					else
 						nArg=rvalue;
 					env.mapValue(vName, nArg);

@@ -1,0 +1,108 @@
+- = "-" | "negative " | "minus "
++ = "+" | "plus " | "positive "
+
+sign = + | -
+digit = 0 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1
+fract_digit = 0 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1
+
+0 = "zero " | "zeroeth " 
+1 = "one " | "first "  | "won " | "a "
+2 = "to " | "two " | "too " | "second "
+3 = "three "  | "third "
+4 = "four " | "for " | "forth " | "fourth " 
+5 = "five " | "fifth " 
+6 = "six " | "sixth " 
+7 = "seven " | "seventh "
+8 = "eight " | "ate " | "eighth " 
+9 = "nine " | "nineth " 
+10 = "ten " | "tenth " 
+11 = "eleven " | "eleventh "
+12 = "twelve " | "twelveth "
+13 = "thirteen " | "thirteenth "
+14 = "fourteen " | "fourteenth "
+15 = "fifteen " | "fifteenth "
+16 = "sixteen " | "sixteenth "
+17 = "seventeen " | "seventeenth "
+18 = "eighteen " | "eighteenth "
+19 = "nineteen " | "nineteenth "
+below_20 = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19
+
+
+20 = "twenty " | "twenty-" | "twentieth "
+30 = "thirty " | "thirty-" | "thirtieth "
+40 = "forty " | "forty-" | "fortieth "
+50 = "fifty " | "fifty-" | "fifhtieth "
+60 = "sixty " | "sixty-" | "sixtieth "
+70 = "seventy " | "seventy-" | "seventieth "
+80 = "eighty " | "eighty-" | "eightieth "
+90 = "ninety " | "ninety-" | "ninetieth "
+
+
+decade = 90 | 80 | 70 | 60 | 50 | 40 | 30 | 20
+in_decades = decade, digit?
+
+hundred = "hundred " | "hundreth "
+100 = ("a " | 1), hundred
+200 = 2, hundred
+300 = 3, hundred
+400 = 4, hundred
+500 = 5, hundred
+600 = 6, hundred
+700 = 7, hundred
+800 = 8, hundred
+900 = 9, hundred
+hundreds = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900
+in_hundreds = hundreds, (in_decades | below_20)?
+thousand = "thousand " | "thousandth "
+1000 = ("a " | 1), thousand
+2000 = 2, thousand
+3000 = 3, thousand
+4000 = 4, thousand
+5000 = 5, thousand
+6000 = 6, thousand
+7000 = 7, thousand
+8000 = 8, thousand
+9000 = 9, thousand
+
+thousands = 1000 | 2000 | 3000 | 4000 | 5000 | 6000 | 7000 | 8000 | 9000
+in_thousands = thousands, (in_hundreds | in_decades | below_20)?
+
+word_number = sign?, (0 | in_thousands | in_hundreds | in_decades | below_20)
+
+numeric = '0' | (('+' | '-')?, ('0'`, '#'), '#'*)
+decimal_whole_number = (numeric, ("th " | "nd " | "st " | "rd ")?)
+whole_number = decimal_whole_number | word_number
+decimal = "point " | "."
+numeric_digit = '#'
+fractional_part = (numeric_digit | fract_digit)+
+full_number = whole_number, (decimal, fractional_part)?
+partial_number = decimal, fraction_part
+
+number = full_number | partial_number
+
+
+; ####### Units 
+; ###### Money 
+prefix_dollars = "$", whole_number, (("and ", whole_number, "cents ") | (decimal, fractional_part))?
+spelled_dollars = "dollar " | "dollars "
+num_cents = whole_number, ("cents " | "cent ")
+postfix_dollars = whole_number, ((spelled_dollars, ("and ", num_cents)?) | (decimal, fraction_part, spelled_dollars))
+money = prefix_dollars | postfix_dollars
+
+
+unit_number = money
+
+hundred_multipler = in_decades | below_20
+thousand_rep = hundred_multipler, hundred
+
+
+;; ## Simple Math operators
+
+
+++ = "+"
+-- = "-"
+** = "*" 
+ppercent = "percent"
+// = "/"
+ 
+operators = ++ | -- | ** | ppercent | //

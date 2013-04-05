@@ -27,6 +27,8 @@ public class SampleTester {
 			weightedStrings.add(new WeightedValue("forward", 25));
 			weightedStrings.add(new WeightedValue("backward", 25));
 			LongitudinalRandomTest(weightedStrings, totalIterations);
+			
+			
 		}
 		catch (Exception e)
 		{

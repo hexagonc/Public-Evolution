@@ -83,8 +83,9 @@ public class LambdaFunctionEvaluator implements CompiledEvaluator
 		Argument avalue=null;
 		if (args!=null&&argList!=null)
 		{
-			while (argumentIndex<argList.length)
+			while (argumentIndex<Math.min(args.length, argList.length))
 			{
+				
 				avalue = getArgumentFinalValue(resume, args[argumentIndex]);
 				if (avalue!=null&&avalue.isContinuation())
 					return returnContinuation(avalue);

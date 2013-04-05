@@ -11,16 +11,17 @@ import com.evolved.automata.parser.math.ExpressionFactory.TokenResult;
 
 public class ReferenceExpressionPreProcessor implements ExpressionFactory.ExpressionPreProcesssor
 {
-	StringDistribution _operatorMatcher;
-	public Vector<HashSet<String>> operators;
-	public HashSet<String> totalOperators;
-	public HashSet<String> infixOperators;
-	public HashSet<String> prefixOperators;
-	public HashSet<String> postfixOperators;
-	HashMap<String, HashSet<String>> operatorTypes; 
-	
+	protected StringDistribution _operatorMatcher;
+	protected  Vector<HashSet<String>> operators;
+	protected  HashSet<String> totalOperators;
+	protected  HashSet<String> infixOperators;
+	protected  HashSet<String> prefixOperators;
+	protected  HashSet<String> postfixOperators;
+	protected HashMap<String, HashSet<String>> operatorTypes; 
+	protected HashMap<String, String> canonicalOperatorMap;
 	public ReferenceExpressionPreProcessor()
 	{
+		canonicalOperatorMap = new HashMap<String, String>();
 		// Define operator groups
 		infixOperators = new HashSet<String>();
 		infixOperators.add("+");
@@ -29,11 +30,20 @@ public class ReferenceExpressionPreProcessor implements ExpressionFactory.Expres
 		infixOperators.add("/");
 		infixOperators.add("^");
 		infixOperators.add(",");
+		canonicalOperatorMap.put("+", "+");
+		canonicalOperatorMap.put("-", "-");
+		canonicalOperatorMap.put("*", "*");
+		canonicalOperatorMap.put("/", "/");
+		
 		
 		prefixOperators = new HashSet<String>();
 		prefixOperators.add("sq");
 		prefixOperators.add("sin");
 		prefixOperators.add("cos");
+		canonicalOperatorMap.put("sq", "sq");
+		canonicalOperatorMap.put("sin", "sin");
+		canonicalOperatorMap.put("cos", "cos");
+		
 		
 		postfixOperators = new HashSet<String>();
 		
@@ -42,6 +52,7 @@ public class ReferenceExpressionPreProcessor implements ExpressionFactory.Expres
 		HashSet<String> ops = new HashSet<String>();
 		// Add lowest precedent
 		ops.add(",");
+		canonicalOperatorMap.put(",", ",");
 		operators.add(ops);
 		ops = new HashSet<String>();
 		// Add lowest precedent
@@ -59,12 +70,15 @@ public class ReferenceExpressionPreProcessor implements ExpressionFactory.Expres
 		ops.add("sq");
 		ops.add("sin");
 		ops.add("cos");
+		canonicalOperatorMap.put("^", "^");
 		operators.add(ops);
 		
 		ops = new HashSet<String>();
 		ops.add("(");
 		ops.add(")");
 		operators.add(ops);
+		canonicalOperatorMap.put(")", ")");
+		canonicalOperatorMap.put("(", "(");
 		
 		totalOperators = new HashSet<String>();
 		totalOperators.addAll(ops);
@@ -98,7 +112,7 @@ public class ReferenceExpressionPreProcessor implements ExpressionFactory.Expres
 			{
 				if (token.length()>0)
 					tokens.add(new TokenResult(true, token.toString()));
-				tokens.add(new TokenResult(false, expression.substring(i, ends[0])));
+				tokens.add(new TokenResult(false, canonicalOperatorMap.get(expression.substring(i, ends[0]))));
 				i = ends[0];
 				token = new StringBuilder();
 			}
@@ -120,7 +134,9 @@ public class ReferenceExpressionPreProcessor implements ExpressionFactory.Expres
 		
 		for (int i=0;i<args.length;i++)
 		{
-			if (vars!=null && vars.containsKey(tokenizedAlgebraicExpression[i].value))
+			if (tokenizedAlgebraicExpression[i].preParsed!=null)
+				args[i] = tokenizedAlgebraicExpression[i].preParsed;
+			else if (vars!=null && vars.containsKey(tokenizedAlgebraicExpression[i].value))
 			{
 				args[i] = new VariableArgument(tokenizedAlgebraicExpression[i].value, vars);
 			}

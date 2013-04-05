@@ -106,7 +106,26 @@ public class StaticFunctionEvaluator extends GenericEvaluator {
 				return read_url_secure(rem);
 			else if (functionName.equals("#'"))
 				return get_function(rem);
-			
+			else if (functionName.equals("reload"))
+				return reload(rem);
+			else if (functionName.equals("load"))
+				return load(rem);
+			else if (functionName.equals("multiple-bind"))
+				return multipleBind(rem);
+			else if (functionName.equals("min"))
+				return min(rem);
+			else if (functionName.equals("max"))
+				return max(rem);
+			else if (functionName.equals("incr"))
+				return plusOne(rem);
+			else if (functionName.equals("decr"))
+				return minusOne(rem);
+			else if (functionName.equals("get-list-mode"))
+				return getListMode(rem);
+			else if (functionName.equals("get-list-average"))
+				return getListAverage(rem);
+			else if (functionName.equals("get-best-result"))
+				return getMostCommonValue(rem);
 		}
 		catch (Exception e)
 		{
@@ -114,6 +133,243 @@ public class StaticFunctionEvaluator extends GenericEvaluator {
 		}
 		throw new RuntimeException(functionName + " is not a valid static function");
 	}
+	
+	/**
+	 * This function takes a list of discrete Argument values and returns the value that occurs <br/>
+	 * greater than a fixed percent higher <br/>
+	 * Argument 1: This is a list of values <br/>
+	 * Argument 2: This is a fraction <br/>
+	 * 
+	 * If there is only one elemetn in the list then it is returned
+	 * If there are more than one element than the element that occurs the most often in the
+	 * list is returned if it occurs more than x% of the time more often than
+	 * @return
+	 */
+	public Argument getMostCommonValue(Argument[] args)
+	{
+		if (invalidArgs(args, 1, true) || !args[0].isCons() || args[0].innerList.length==0)
+			return null;
+		Hashtable<String, Integer> countMap = new Hashtable<String, Integer>();
+		String key;
+		int maxValue=0;
+		int secondToLast=0;
+		Argument maxArgument=null;
+		boolean first=true;
+		int newValue;
+		
+		if (args[0].innerList.length==1)
+			return args[0].innerList[0];
+		
+		double threshold = Environment.getDoubleFromArg(args[1]);
+		int length = args[0].innerList.length;
+		for (Argument value:args[0].innerList)
+		{
+			key = value.toString();
+			newValue=1;
+			if (countMap.containsKey(key))
+			{
+				newValue = countMap.get(key).intValue()+1;
+				countMap.put(key, newValue);
+			}
+			else
+				countMap.put(key, newValue);
+			if (first || newValue>maxValue)
+			{
+				first=false;
+				secondToLast=maxValue;
+				maxValue=newValue;
+				maxArgument = value;
+			}
+		}
+		
+		double scaledFirst = maxValue/length, scaledSecond = secondToLast/length;
+		
+		if (secondToLast == 0 || ((scaledFirst-scaledSecond)/scaledSecond>threshold))
+			return maxArgument;
+		else
+			return null;
+		
+	}
+	
+	public Argument getListAverage(Argument[] args)
+	{
+		if (invalidArgs(args, 1, false) || !args[0].isCons())
+			return null;
+		
+		double sum=0;
+		
+		for (Argument value:args[0].innerList)
+		{
+			sum+=Environment.getDoubleFromArg(value);
+		}
+		return Environment.makeAtom(new Double(sum/args[0].innerList.length));
+	}
+	
+	
+	public Argument getListMode(Argument[] args)
+	{
+		if (invalidArgs(args, 1, false) || !args[0].isCons())
+			return null;
+		Hashtable<String, Integer> countMap = new Hashtable<String, Integer>();
+		String key;
+		int maxValue=0;
+		Argument maxArgument=null;
+		boolean first=true;
+		int newValue;
+		for (Argument value:args[0].innerList)
+		{
+			key = value.toString();
+			newValue=1;
+			if (countMap.containsKey(key))
+			{
+				newValue = countMap.get(key).intValue()+1;
+				countMap.put(key, newValue);
+			}
+			else
+				countMap.put(key, newValue);
+			if (first || newValue>maxValue)
+			{
+				first=false;
+				maxValue=newValue;
+				maxArgument = value;
+			}
+		}
+		return maxArgument;
+	}
+	
+	
+	public Argument plusOne(Argument[] args)
+	{
+		if (invalidArgs(args,1, true))
+		{
+			return null;
+		}
+		try
+		{
+    		double currentValue = Environment.getDoubleFromArg(args[0]);;
+    		
+    		return Environment.makeAtom(new Double(currentValue+1));
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+		
+	}
+	
+	public Argument minusOne(Argument[] args)
+	{
+		if (invalidArgs(args,1, true))
+		{
+			return null;
+		}
+		try
+		{
+    		double currentValue = Environment.getDoubleFromArg(args[0]);;
+    		
+    		return Environment.makeAtom(new Double(currentValue-1));
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+		
+	}
+	
+	public Argument max(Argument[] args)
+	{
+		if (invalidArgs(args,1, true))
+		{
+			return null;
+		}
+		try
+		{
+    		double maxValue=0, currentValue;
+    		boolean first=true;
+    		int maxIndex=0;
+    		for (int i=0;i<args.length;i++)
+    		{
+    			currentValue = Environment.getDoubleFromArg(args[i]);
+    			if (first || currentValue>maxValue)
+    			{
+    				first=false;
+    				maxValue = currentValue;
+    				maxIndex = i;
+    			}
+    		}
+    		return args[maxIndex];
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+		
+	}
+	
+	public Argument min(Argument[] args)
+	{
+		if (invalidArgs(args,1, true))
+		{
+			return null;
+		}
+		try
+		{
+    		double minValue=0, currentValue;
+    		boolean first=true;
+    		int minIndex=0;
+    		for (int i=0;i<args.length;i++)
+    		{
+    			currentValue = Environment.getDoubleFromArg(args[i]);
+    			if (first || currentValue<minValue)
+    			{
+    				first=false;
+    				minValue = currentValue;
+    				minIndex = i;
+    			}
+    		}
+    		return args[minIndex];
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+		
+	}
+	
+	/**
+	 * Binds a list of values to a list of variables.  If there are fewer variables than <br/>
+	 * values than only the values present will bind to variables in the same relative <br/>
+	 * position <br/>
+	 * 
+	 * Returns the list of values provided or null if either the arguments aren't lists or <br/>
+	 * the list of variables is less than the list of values
+	 */
+	public Argument multipleBind(Argument[] args)
+	{
+		if (invalidArgs(args, 2, false) || !args[0].isCons() || !args[1].isCons())
+			return null;
+		
+		try
+		{
+			Argument[] variables = args[0].innerList;
+			Argument[] values = args[1].innerList;
+			
+			if (variables.length<values.length)
+				return null;
+			String name;
+			for (int i=0;i<values.length;i++)
+			{
+				name = Environment.getStringArgResult(variables[i]);
+				env.mapValue(name, values[i]);
+			}
+			return args[1];
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	}
+	
 	
 	public Argument get_function(Argument[] args)
 	{
@@ -241,7 +497,7 @@ public class StaticFunctionEvaluator extends GenericEvaluator {
 			{
 				if (uploadP)
 				{
-					byte[] buffer = data.getBytes(Charset.forName("UTF-8"));
+					byte[] buffer = data.getBytes("UTF-8");
 					ostream = httpConn.getOutputStream();
 					ostream.write(buffer);
 					ostream.close();
@@ -383,7 +639,7 @@ public class StaticFunctionEvaluator extends GenericEvaluator {
 			{
 				if (uploadP)
 				{
-					byte[] buffer = data.getBytes(Charset.forName("UTF-8"));
+					byte[] buffer = data.getBytes("UTF-8");
 					ostream = httpConn.getOutputStream();
 					ostream.write(buffer);
 					ostream.close();
@@ -419,8 +675,19 @@ public class StaticFunctionEvaluator extends GenericEvaluator {
 	{
 		if (invalidArgs(args, 1))
 			return null;
-		Number num = (Number)args[0].oValue;
-		return Environment.makeAtom(new Integer(num.intValue()));
+		if (args[0].oValue instanceof Number)
+		{
+			Number num = (Number)args[0].oValue;
+			return Environment.makeAtom(new Integer(num.intValue()));
+		}
+		else if (args[0].oValue instanceof String)
+		{
+			return Environment.makeAtom(new Integer(Integer.parseInt((String)args[0].oValue)));
+		}
+		else
+			return null;
+			
+		
 	}
 	
 	public Argument ends_with(Argument[] args)
@@ -582,15 +849,17 @@ public class StaticFunctionEvaluator extends GenericEvaluator {
 	
 	public Argument first(Argument[] args)
 	{
-		if (args == null)
+		if (invalidArgs(args,1,false))
+		{
 			return null;
+		}
 		
 		Argument consArg = args[0];
 		
 		Argument[] iterationListArg = null;
 		
 		
-		if (env.isNull(consArg)||!consArg.isCons())
+		if (!consArg.isCons())
 		{
 			iterationListArg = new Argument[1];
 			iterationListArg[0] = consArg;
@@ -600,12 +869,16 @@ public class StaticFunctionEvaluator extends GenericEvaluator {
 			iterationListArg=consArg.innerList;
 		}
 		
+		if (iterationListArg.length<1)
+			return null;
 		return resetReturn(iterationListArg[0]);
 	}
 	
 	
 	public Argument second(Argument[] args)
 	{
+		if (invalidArgs(args, 1))
+			return null;
 		Argument consArg = args[0];
 		
 		Argument[] iterationListArg = null;
@@ -618,7 +891,12 @@ public class StaticFunctionEvaluator extends GenericEvaluator {
 		return iterationListArg[1];
 	}
 	
-	
+	/**
+	 * First argument is the list
+	 * Second argument is the index
+	 * @param args
+	 * @return
+	 */
 	public Argument nth(Argument[] args)
 	{
 		Argument consArg = args[0];
@@ -889,13 +1167,45 @@ public class StaticFunctionEvaluator extends GenericEvaluator {
 			return env.makeAtom(args[0].toString());
 	}
 	
+	private Argument reload(Argument[] args)
+	{
+		if (invalidArgs(args, 1))
+			return null;
+		String filename = Environment.getStringArgResult(args[0]);
+		Environment root = env.getRootEnvironment();
+		root.clearEnvironment();
+		root.loadFromFileFast(filename);
+		return Environment.makeAtom("reload");
+	}
+	
+	private Argument load(Argument[] args)
+	{
+		if (invalidArgs(args, 1))
+			return null;
+		String filename = Environment.getStringArgResult(args[0]);
+		Environment root = env.getRootEnvironment();
+		
+		root.loadFromFileFast(filename);
+		return Environment.makeAtom("reload");
+	}
+	
 	private Argument castDouble(Argument[] args)
 	{
 		if (invalidArgs(args, 1))
 			return null;
 		try
 		{
-			return env.makeAtom(new Double(Double.parseDouble(args[0].oValue.toString())));
+			if (args[0].oValue instanceof Number)
+			{
+				Number num = (Number)args[0].oValue;
+				return Environment.makeAtom(new Double(num.doubleValue()));
+			}
+			else if (args[0].oValue instanceof String)
+			{
+				return Environment.makeAtom(new Double(Double.parseDouble((String)args[0].oValue)));
+			}
+			
+			
 		}
 		catch (Exception e)
 		{
@@ -934,7 +1244,8 @@ public class StaticFunctionEvaluator extends GenericEvaluator {
 		else
 			return env.makeAtom(new Double(a));
 	}
-	
+	// first argument is starting value
+	// second argument is the ending value
 	private Argument random(Argument[] args)
 	{
 		if (invalidArgs(args, 2))

@@ -174,6 +174,45 @@ public class AITools {
 		}
 	}
 	
+	public static void shiftBackValues(Map<String,String> map, String[] baseKeyNames, String[] newBaseValues,int shiftDepth)
+	{
+		if (newBaseValues!=null)
+		{
+			for (int i=0;i<baseKeyNames.length;i++)
+				shiftBackValue(map,baseKeyNames[i],newBaseValues[i],shiftDepth);
+		}
+		else
+		{
+			for (int i=0;i<baseKeyNames.length;i++)
+				shiftBackValue(map,baseKeyNames[i], null,shiftDepth);
+		}
+		
+		
+	}
 	
+	public static void shiftBackValue(Map<String,String> map, String baseKeyName, String newBaseValue,int shiftDepth)
+	{
+		String moreRecentValue,moreRecentKey, currentKey;
+		String separator=".";
+		String keyPattern = "%1$s%2$s%3$s";
+		for (int i=shiftDepth;i>=1;i--)
+		{
+			currentKey=String.format(keyPattern, baseKeyName,separator,i);
+			if (i>1)
+			{
+				moreRecentKey=String.format(keyPattern, baseKeyName,separator,i-1);
+			}
+			else
+				moreRecentKey=baseKeyName;
+			if (map.containsKey(moreRecentKey))
+				map.put(currentKey, map.get(moreRecentKey));
+			else
+				map.remove(currentKey);
+		}
+		if (newBaseValue!=null)
+			map.put(baseKeyName, newBaseValue);
+		else
+			map.remove(baseKeyName);
+	}
 
 }

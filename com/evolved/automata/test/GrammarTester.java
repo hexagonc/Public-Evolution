@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+
 import com.evolved.automata.filetools.*;
 import com.evolved.automata.parser.*;
 import java.io.*;
@@ -138,33 +139,23 @@ public class GrammarTester {
 			long end = System.currentTimeMillis();
 			boolean match = output == expected;
 			System.out.println(String.format(reportString, grammar, input, expected, output, end-start));
+			Hashtable<String, LinkedList<String>> captureMap=null;
 			if (output)
 			{
 				String outputDescriptionPattern = "Match: %1$s -- [ %2$s -> %3$s ] ";
 				String oString=null;
 				String captured;
-				LinkedList<Matcher> gState = cfg.getOutputSet();
-				Matcher s;
-				if (capturevalues!=null)
+				captureMap = cfg.getCaptureSet();
+				
+				if (captureMap!=null)
 				{
-					for (int i=0;i<gState.size();i++)
+					for (String matchValue:captureMap.keySet())
 					{
-						s= gState.get(i);
-						for (String matchValue:capturevalues)
-						{
-								
-							if ((captured=s.getFirstCapturedValue(matchValue))!=null)
-							{
-								oString = String.format(outputDescriptionPattern, i,matchValue,captured );
-								System.out.println(oString);
-							}
-						}
-						
-						
-						
+							
+						oString = String.format(outputDescriptionPattern, 0,matchValue,captureMap.get(matchValue) );
+						System.out.println(oString);
 					}
 				}
-				
 				
 			}
 			return match;
