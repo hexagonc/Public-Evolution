@@ -1,0 +1,3 @@
+tocTab[tocTab.length] = new Array("0.2.2:1", "", "com.sample.simple.paint.events", "EARoot/EA2/EA2/EA42.htm", "175.png", "4", "0", "", "Logical diagram0","{976B9F33-AD4C-46e2-B4F0-1972E746CDE0}");
+tocTab[tocTab.length] = new Array("0.2.2:2", "", "SetBrushModeEvent", "EARoot/EA2/EA2/EA44.htm", "5.png", "11", "0", "", "Class0","{4BA0A26B-B0DF-4f07-BDDF-5E249A0D177F}");
+tocTab[tocTab.length] = new Array("0.2.2:3", "", "«interface» SetEraserModeEvent", "EARoot/EA2/EA2/EA45.htm", "8.png", "12", "0", "", "Interface0","{5F509018-0E55-4d80-81C7-A5E72E9E7211}");

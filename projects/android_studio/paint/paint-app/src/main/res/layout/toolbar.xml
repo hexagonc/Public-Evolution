@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" >
+    <View 
+        android:layout_marginRight = '@dimen/selected_color_right_padding'
+        android:layout_width = '@dimen/base_toolbar_icon_size'
+        android:layout_height = '@dimen/base_toolbar_icon_size' 
+        android:background="@drawable/selected_color"
+        android:id = '@+id/vw_selected_color'
+        android:layout_weight = '0'/>
+    
+    <LinearLayout
+        android:orientation = 'vertical'
+        android:layout_width = '0px'
+        android:layout_weight = '1'
+        android:layout_height = 'wrap_content'
+        android:gravity = 'center'>
+        <LinearLayout android:orientation = 'horizontal'
+            android:layout_width = 'wrap_content'
+            android:layout_height = 'wrap_content'
+            android:background = '@color/unselected_tip_color'>
+            <ImageButton 
+		        android:id = '@+id/imb_select_brush'
+		        android:background = '@drawable/selected_tip'
+		        android:src = '@drawable/brush_icon'
+		        android:scaleType="fitXY"
+		        android:layout_width = '@dimen/base_toolbar_icon_size'
+		        android:layout_height = '@dimen/base_toolbar_icon_size'
+		        />
+	        <FrameLayout 
+		        android:id = '@+id/frm_brush_tip_select_container'
+		        android:layout_width="@dimen/base_toolbar_icon_size"
+		        android:layout_height = '@dimen/base_toolbar_icon_size'
+		        android:focusable="true">
+		        <View android:id = '@+id/vw_brush_size'
+		            android:layout_height = '3dp'
+		            android:layout_width = '3dp'
+		            android:background = '@drawable/select_brush_tip'
+		            android:layout_gravity="center" />
+		        
+		    </FrameLayout>
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:orientation = 'vertical'
+        android:layout_width = '0px'
+        android:layout_weight = '1'
+        android:layout_height = 'wrap_content'
+        android:gravity = 'center'
+        >
+        <LinearLayout android:orientation = 'horizontal'
+            android:layout_width = 'wrap_content'
+            android:layout_height = 'wrap_content'
+            android:background = '@color/unselected_tip_color'>
+	        <ImageButton 
+		        android:id = '@+id/imb_select_eraser'
+		        android:src = '@drawable/eraser_icon'
+		        android:scaleType="fitXY"
+		        android:background="#00000000"
+		        android:layout_width = '@dimen/base_toolbar_icon_size'
+		        android:layout_height = '@dimen/base_toolbar_icon_size'
+		        />
+	        <TextView 
+	            android:id = '@+id/txt_eraser_size_indicator'
+	            android:layout_width = '@dimen/base_toolbar_icon_size'
+		        android:layout_height = '@dimen/base_toolbar_icon_size'
+		        android:gravity = 'center'
+		        android:textSize = '@dimen/eraser_size_multiplier_text_size'
+		        android:text = '1x'/>
+	        
+    	</LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:orientation = 'vertical'
+        android:layout_width = '0px'
+        android:layout_weight = '1'
+        android:layout_height = 'wrap_content'
+        
+        android:gravity = 'center'>
+        <LinearLayout android:orientation = 'horizontal'
+            android:layout_width = 'wrap_content'
+            android:layout_height = 'wrap_content'
+     		android:background = '@color/unselected_tip_color' >
+	        <ImageButton 
+		        android:id = '@+id/imb_undo'
+		        android:background = '@color/unselected_tip_color'
+		        android:src = '@drawable/undo_icon'
+		        android:scaleType="fitCenter"
+		        android:layout_width = '@dimen/base_toolbar_icon_size'
+		        android:layout_height = '@dimen/base_toolbar_icon_size'
+		        />
+	        
+	        <ImageButton 
+	            android:id = '@+id/imb_clear_picture'
+	            android:src = '@drawable/trash_icon'
+	            android:background="#00000000"
+	            android:scaleType="fitCenter"
+	            android:layout_width = '@dimen/base_toolbar_icon_size'
+		        android:layout_height = '@dimen/base_toolbar_icon_size'
+	            />
+	       
+	    </LinearLayout>
+	    
+        
+    </LinearLayout>
+    <LinearLayout
+        android:orientation = 'vertical'
+        android:layout_width = '0px'
+        android:layout_weight = '1'
+        android:layout_height = 'wrap_content'
+        android:gravity = 'center'>
+	    
+        
+    </LinearLayout>
+    
+
+</LinearLayout>

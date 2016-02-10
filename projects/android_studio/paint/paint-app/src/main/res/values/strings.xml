@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SimplePaintExample</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="cancel_toolbar_text">&#215;</string>
+	<string-array name="color_bar_colors">
+	    <item>
+	        #FF0000
+	    </item>
+	    <item>
+	        #FF7900
+	    </item>
+	    <item>
+	        #FFFE00
+	    </item>
+	    <item>
+	        #BBFF00
+	    </item>
+	    <item>
+	        #3CFF00
+	    </item>
+	    <item>
+	        #00FF62
+	    </item>
+	    <item>
+	        #00FFEE
+	    </item>
+	    <item>
+	        #006DFF
+	    </item>
+	    <item>
+	        #0012FF
+	    </item>
+	    <item>
+	        #7700FF
+	    </item>
+	    <item>
+	        #FF00F4
+	    </item>
+	    <item>
+	        #592E0C
+	    </item>
+	    <item>
+	        #FFFFFF
+	    </item>
+	    <item>
+	        #CCCCCC
+	    </item>
+	    <item>
+	        #AAAAAA
+	    </item>
+	    <item>
+	        #727272
+	    </item>
+	    <item>
+	        #444444
+	    </item>
+	    <item>
+	        #000000
+	    </item>
+	</string-array>
+	<integer-array name = 'brush_sizes'>
+	    <item>
+	        1
+	    </item>
+	    <item>
+	        3
+	    </item>
+	    <item>
+	        10
+	    </item>
+	    <item>
+	        15
+	    </item>
+	    <item>
+	        20
+	    </item>
+	</integer-array>
+	<integer-array name = 'eraser_sizes'>
+	    <item>10</item>
+	    <item>20</item>
+	    <item>40</item>
+	    <item>60</item>
+	    <item>80</item>
+	</integer-array>
+</resources>

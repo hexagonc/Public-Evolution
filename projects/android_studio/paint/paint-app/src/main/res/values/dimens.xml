@@ -1,0 +1,18 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+	<dimen name="color_list_item_length">30dp</dimen>
+	<dimen name="color_list_height">300dp</dimen>
+	<dimen name="color_list_width">30dp</dimen>
+	<dimen name="base_toolbar_icon_size">30dp</dimen>
+	<dimen name="selected_color_right_padding">30dp</dimen>
+	<dimen name="eraser_size_multiplier_text_size">12dp</dimen>
+	<dimen name="toolbar_group_margin">3dp</dimen>
+	<dimen name = 'toolbar_margin_bottom'>6dp</dimen>
+	
+	<dimen name = 'brush_tip_select_dialog_width'>30dp</dimen>
+	<dimen name = 'brush_tip_select_dialog_window_width'>60dp</dimen>
+	<dimen name = 'brush_tip_select_dialog_height'>150dp</dimen>
+</resources>

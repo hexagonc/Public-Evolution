@@ -1,0 +1,12 @@
+tocTab[tocTab.length] = new Array("0.2.1:1", "", "com.sample.simple.paint", "EARoot/EA2/EA1/EA29.htm", "175.png", "3", "0", "", "Logical diagram0","{4988EEA1-03B7-44e5-B7CA-63CFF0BE9B86}");
+tocTab[tocTab.length] = new Array("0.2.1:2", "", "«interface» BrushPointsUpdatedListener", "EARoot/EA2/EA1/EA31.htm", "8.png", "26", "0", "", "Interface0","{05A58607-20B9-4adc-9682-5C234E5BB9BB}");
+tocTab[tocTab.length] = new Array("0.2.1:3", "", "BrushStroke", "EARoot/EA2/EA1/EA32.htm", "5.png", "21", "0", "", "Class0","{F4FB245B-4620-4aca-8581-4472A3EE7993}");
+tocTab[tocTab.length] = new Array("0.2.1:4", "", "EraserStroke", "EARoot/EA2/EA1/EA33.htm", "5.png", "22", "0", "", "Class0","{DBE3B5B8-B1DF-43f1-973A-19163127028E}");
+tocTab[tocTab.length] = new Array("0.2.1:5", "", "«interface» ImageChangedListener", "EARoot/EA2/EA1/EA34.htm", "8.png", "27", "0", "", "Interface0","{887BF75B-1478-46da-BB4E-31087F5BFE60}");
+tocTab[tocTab.length] = new Array("0.2.1:6", "", "ImageSettings", "EARoot/EA2/EA1/EA35.htm", "5.png", "8", "0", "", "Class0","{EF4F2AAD-BEE1-497c-B5F8-5A70948F3B48}");
+tocTab[tocTab.length] = new Array("0.2.1:7", "", "PaintApp", "EARoot/EA2/EA1/EA36.htm", "5.png", "6", "0", "", "Class0","{BB2E68BF-34D6-4a8d-A397-B1048A675FCC}");
+tocTab[tocTab.length] = new Array("0.2.1:8", "", "PaintServer", "EARoot/EA2/EA1/EA37.htm", "5.png", "20", "0", "", "Class0","{4F4B2FE1-F7BC-4655-B62B-E42B82516E05}");
+tocTab[tocTab.length] = new Array("0.2.1:9", "", "PaintSurfaceConfiguration", "EARoot/EA2/EA1/EA38.htm", "5.png", "7", "0", "", "Class0","{292DC4EF-949F-4701-8BD5-7580FBEC95FF}");
+tocTab[tocTab.length] = new Array("0.2.1:10", "", "«interface» Stroke", "EARoot/EA2/EA1/EA39.htm", "8.png", "23", "0", "", "Interface0","{2F950A63-D477-46cc-8A43-8C9639A99E44}");
+tocTab[tocTab.length] = new Array("0.2.1:11", "", "«enumeration» SurfaceInteractionMode", "EARoot/EA2/EA1/EA40.htm", "5.png", "13", "0", "", "Class0","{590E4309-CF44-4a0b-9089-3B747CE516DC}");
+tocTab[tocTab.length] = new Array("0.2.1:12", "", "SurfaceTouch", "EARoot/EA2/EA1/EA41.htm", "5.png", "19", "0", "", "Class0","{54860236-1AA3-432f-B674-A2B778C12A99}");
